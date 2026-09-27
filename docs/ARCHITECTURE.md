@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
 ## Principio central
-La fuente de verdad es `FurnitureModel`. El visor 3D, despiece, nesting, presupuesto y archivos de fabricación son proyecciones derivadas.
+La fuente de verdad es `FurnitureModel`. La vista isométrica, despiece, nesting, presupuesto y archivos de fabricación son proyecciones derivadas.
 
 ```text
 Usuario / IA
@@ -17,7 +17,7 @@ FurnitureModel vN
 
 ## Capas
 - `src/core/furniture`: dominio puro y determinístico.
-- `src/components`: interfaz y visualización.
+- `src/components`: interfaz y visualización isométrica SVG.
 - `src/app`: rutas y composición Next.js.
 - Backend/Data: se agrega en P1 con persistencia y auth.
 - AI runtime: se agrega tras contratos de acciones.

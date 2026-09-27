@@ -10,7 +10,7 @@ Clóset rectangular de melamina.
 1. Crear proyecto.
 2. Definir ancho, alto y fondo.
 3. Generar modelo paramétrico.
-4. Ver 3D.
+4. Revisar una vista isométrica preliminar.
 5. Obtener despiece.
 6. Calcular tableros/canto.
 7. Presupuestar.

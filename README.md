@@ -4,7 +4,7 @@ Starter técnico para una app web de diseño y fabricación de muebles de melami
 
 ## Objetivo del MVP
 
-Entrada de medidas → modelo paramétrico → vista 3D → despiece → presupuesto. La IA se integra después como capa de intención y nunca como fuente de verdad geométrica.
+Entrada de medidas → modelo paramétrico → vista isométrica → despiece → presupuesto. La IA se integra después como capa de intención y nunca como fuente de verdad geométrica.
 
 ## Stack objetivo
 

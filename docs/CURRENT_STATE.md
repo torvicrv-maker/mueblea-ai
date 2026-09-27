@@ -7,7 +7,7 @@ Fecha de checkpoint inicial: 2026-09-26.
 - Fuente canónica definida: `FurnitureModel`.
 - Starter Next.js creado.
 - Modelo mínimo de clóset determinístico.
-- Vista 3D inicial.
+- Vista isométrica SVG, ligera y compatible con móviles.
 - Despiece y métricas preliminares derivados del mismo modelo.
 - Validador de IDs, dimensiones, valores finitos, orientación y envelope físico creado.
 - Suite A7 del Furniture Core: 7/7 pruebas PASS.
