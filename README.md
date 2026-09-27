@@ -13,7 +13,7 @@ Entrada de medidas → modelo paramétrico → vista 3D → despiece → presupu
 - TypeScript 7
 - Three.js + React Three Fiber
 - PostgreSQL/Supabase en la siguiente fase
-- Vercel para despliegue web
+- GitHub Pages para el prototipo estático; Vercel podrá alojar futuras funciones de servidor
 
 ## Ejecutar
 
@@ -27,6 +27,8 @@ Abrir `http://localhost:3000`.
 ## Estado
 
 BLOQUE 0 iniciado. Incluye arquitectura, agentes, modelo paramétrico mínimo y un diseñador de clóset demostrativo.
+
+Cada cambio en `main` compila y publica automáticamente el sitio en GitHub Pages.
 
 ## Nota de validación
 
