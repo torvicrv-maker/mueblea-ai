@@ -1,6 +1,8 @@
 import type { FurnitureModel } from "@/core/furniture/types";
 
-export function FurniturePreview({ model }: { model: FurnitureModel }) {
+type FurnitureMaterial = "oak" | "white" | "walnut";
+
+export function FurniturePreview({ model, material = "oak", variant = "canvas" }: { model: FurnitureModel; material?: FurnitureMaterial; variant?: "canvas" | "hero" }) {
   const frontHeight = Math.max(250, Math.min(350, 340 * (model.dimensions.height / 2300)));
   const frontWidth = Math.max(190, Math.min(390, frontHeight * (model.dimensions.width / model.dimensions.height)));
   const depthX = Math.max(48, Math.min(118, frontHeight * (model.dimensions.depth / model.dimensions.height) * 1.15));
@@ -13,7 +15,7 @@ export function FurniturePreview({ model }: { model: FurnitureModel }) {
   const shelfY = top + frontHeight * 0.53;
 
   return (
-    <div className="viewportStage">
+    <div className={`viewportStage ${variant === "hero" ? "heroPreviewStage" : ""}`} data-material={material}>
       <svg className="cabinetSvg" viewBox="0 0 720 560" role="img" aria-label={`Vista isométrica de clóset de ${model.dimensions.width} por ${model.dimensions.height} por ${model.dimensions.depth} milímetros`}>
         <ellipse cx={left + frontWidth / 2 + depthX * .42} cy={bottom + 20} rx={frontWidth * .62} ry="19" fill="#605541" opacity=".08" />
 

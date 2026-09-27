@@ -4,16 +4,24 @@ Starter técnico para una app web de diseño y fabricación de muebles de melami
 
 ## Objetivo del MVP
 
-Entrada de medidas → modelo paramétrico → vista isométrica → despiece → presupuesto. La IA se integra después como capa de intención y nunca como fuente de verdad geométrica.
+Entrada de medidas → modelo paramétrico → vista isométrica → despiece preliminar. La IA se integra después como capa de intención y nunca como fuente de verdad geométrica.
 
 ## Stack objetivo
 
 - Next.js 16.3.x (App Router)
 - React 19.3
 - TypeScript 7
-- Three.js + React Three Fiber
 - PostgreSQL/Supabase en la siguiente fase
 - GitHub Pages para el prototipo estático; Vercel podrá alojar futuras funciones de servidor
+
+## Experiencia actual
+
+- `/`: portada del producto y entrada al diseñador.
+- `/designer/`: interfaz de trabajo con biblioteca/elementos a la izquierda, vista del modelo al centro y parámetros/materiales a la derecha.
+- Cambiar dimensiones actualiza el modelo y sus métricas; el acabado cambia la ilustración.
+- El botón de descarga genera un CSV del despiece actual.
+
+La vista del clóset es una ilustración isométrica SVG, no un visor CAD/3D interactivo. El cálculo de materiales es preliminar; no hay todavía guardado de proyectos, IA generativa, precios ni optimización de tableros.
 
 ## Ejecutar
 

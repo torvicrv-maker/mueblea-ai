@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Mueblea AI",
-  description: "Diseño paramétrico de muebles de melamina asistido por IA",
+  title: "Mueblea IA — Diseña tu mueble a medida",
+  description: "Diseña un clóset a medida desde tu navegador. Ajusta dimensiones, elige un acabado y consulta el despiece preliminar.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
