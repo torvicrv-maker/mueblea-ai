@@ -30,7 +30,7 @@ BLOQUE 0 iniciado. Incluye arquitectura, agentes, modelo paramétrico mínimo y 
 
 ## Nota de validación
 
-Las versiones de dependencias se fijaron con referencias públicas vigentes al 2026-09-26. En este entorno no se completó `npm install`, por lo que `typecheck/build` continúan como criterio pendiente de CHECKPOINT-001.
+Las dependencias están fijadas en `package-lock.json`. Validación local: `npm run check` completó typecheck, 7 pruebas del core y build de producción.
 
 
 ## QA
