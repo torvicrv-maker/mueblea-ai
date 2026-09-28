@@ -11,6 +11,7 @@ import type { FurniturePromptProposal, DimensionKey } from "@/core/furniture/pro
 import { validateFurnitureModel } from "@/core/furniture/validateFurnitureModel";
 import { DesignerAIPanel } from "./DesignerAIPanel";
 import { FurniturePreview } from "./FurniturePreview";
+import { GeneratedModelPreview } from "./GeneratedModelPreview";
 
 const materials = [
   { id: "oak", name: "Roble claro", color: "#d9c19e", description: "Veta natural" },
@@ -38,6 +39,9 @@ export function MuebleDesigner() {
   const [showProjects, setShowProjects] = useState(false);
   const [assistantSession, setAssistantSession] = useState(0);
   const [proposal, setProposal] = useState<FurniturePromptProposal | null>(null);
+  const [generatedModelBlob, setGeneratedModelBlob] = useState<Blob | null>(null);
+  const [generatedModelUrl, setGeneratedModelUrl] = useState<string | null>(null);
+  const [showGeneratedModel, setShowGeneratedModel] = useState(false);
 
   useEffect(() => {
     try {
@@ -56,6 +60,16 @@ export function MuebleDesigner() {
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [showProjects]);
+
+  useEffect(() => {
+    if (!generatedModelBlob) {
+      setGeneratedModelUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(generatedModelBlob);
+    setGeneratedModelUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [generatedModelBlob]);
 
   const model = useMemo(() => buildWardrobe(dimensions), [dimensions]);
   const displayedDimensions = proposal?.status === "ready" ? proposal.action.payload : dimensions;
@@ -126,6 +140,8 @@ export function MuebleDesigner() {
     setMaterial("oak");
     setSelectedPartId("side-left");
     setProposal(null);
+    setGeneratedModelBlob(null);
+    setShowGeneratedModel(false);
     setAssistantSession((current) => current + 1);
     setIsDirty(false);
     setShowProjects(false);
@@ -140,6 +156,8 @@ export function MuebleDesigner() {
     setMaterial(project.material);
     setSelectedPartId("side-left");
     setProposal(null);
+    setGeneratedModelBlob(null);
+    setShowGeneratedModel(false);
     setAssistantSession((current) => current + 1);
     setIsDirty(false);
     setStorageMessage("Proyecto cargado desde este dispositivo.");
@@ -232,15 +250,21 @@ export function MuebleDesigner() {
         <section className="designerCanvas" aria-label="Lienzo de diseño">
           <div className="canvasToolbar">
             <div><span className="canvasBreadcrumb">PROYECTO</span><span className="canvasProject"> / {projectName || "Clóset sin nombre"}</span></div>
-            <span className={isPreviewingProposal ? "canvasViewLabel proposalViewLabel" : "canvasViewLabel"}><span />{isPreviewingProposal ? "Vista previa sin aplicar" : "Modelo 3D interactivo"}</span>
+            <div className="canvasToolbarControls">
+              <span className={isPreviewingProposal ? "canvasViewLabel proposalViewLabel" : "canvasViewLabel"}><span />{showGeneratedModel ? "Referencia 3D desde foto" : isPreviewingProposal ? "Vista previa sin aplicar" : "Modelo 3D interactivo"}</span>
+              {generatedModelUrl ? <button className="canvasModelToggle" type="button" onClick={() => setShowGeneratedModel((current) => !current)}>{showGeneratedModel ? "Ver clóset paramétrico" : "Ver 3D de la foto"}</button> : null}
+            </div>
           </div>
           <div className="canvasStage">
-            <FurniturePreview model={displayedModel} material={material} selectedPartId={selectedPartId} />
-            <div className="canvasSelection"><span className="selectionMark" />{selectedPart.name}<span>SELECCIONADO</span></div>
-            <div className="canvasScale">MM <span>·</span> {isPreviewingProposal ? "PROPUESTA" : "CLÓSET BASE"}</div>
+            {showGeneratedModel && generatedModelUrl
+              ? <GeneratedModelPreview modelUrl={generatedModelUrl} />
+              : <FurniturePreview model={displayedModel} material={material} selectedPartId={selectedPartId} />}
+            {!showGeneratedModel ? <div className="canvasSelection"><span className="selectionMark" />{selectedPart.name}<span>SELECCIONADO</span></div> : null}
+            {!showGeneratedModel ? <div className="canvasScale">MM <span>·</span> {isPreviewingProposal ? "PROPUESTA" : "CLÓSET BASE"}</div> : null}
           </div>
           <section className="productionPanel" aria-label="Resumen de producción">
             <div className="productionHeading"><div><span className="panelEyebrow">{isPreviewingProposal ? "RESUMEN DE LA PROPUESTA" : "RESUMEN DEL MODELO"}</span><h2>{isPreviewingProposal ? "Vista previa de cambios" : "Listo para revisar"}</h2></div><span className={issues.length ? "validationTag warning" : "validationTag"}>{issues.length ? "Revisar medidas" : "✓ Medidas válidas"}</span></div>
+            {showGeneratedModel ? <p className="generatedModelNote">El modelo de la foto es solo una referencia visual. Las piezas, medidas y el CSV de esta sección pertenecen al clóset paramétrico.</p> : null}
             <div className="productionMetrics">
               <div><span>Piezas</span><strong>{displayedModel.parts.length}</strong></div>
               <div><span>Área de tablero</span><strong>{area.toFixed(2)} <small>m²</small></strong></div>
@@ -291,7 +315,16 @@ export function MuebleDesigner() {
               <div className="materialDisclaimer"><strong>Acabado visual</strong><p>El color de referencia cambia; el cálculo no incluye precios ni optimización de tableros.</p></div>
             </div>
           ) : (
-            <DesignerAIPanel key={assistantSession} dimensions={dimensions} proposal={proposal} onProposalChange={setProposal} onApplyProposal={applyProposal} />
+            <DesignerAIPanel
+              key={assistantSession}
+              dimensions={dimensions}
+              proposal={proposal}
+              onProposalChange={setProposal}
+              onApplyProposal={applyProposal}
+              hasGeneratedModel={Boolean(generatedModelBlob)}
+              onGeneratedModel={(blob) => { setGeneratedModelBlob(blob); setShowGeneratedModel(true); }}
+              onClearGeneratedModel={() => { setGeneratedModelBlob(null); setShowGeneratedModel(false); }}
+            />
           )}
         </aside>
       </div>

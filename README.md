@@ -22,9 +22,18 @@ Entrada de medidas → modelo paramétrico → vista isométrica → despiece pr
 - El visor Three.js `SVGRenderer` permite girar y acercar el clóset sin depender de WebGL.
 - Guarda y carga proyectos en el almacenamiento de este navegador.
 - El módulo Diseñador IA acepta texto y dictado; prepara una acción `SET_DIMENSIONS` con vista previa y confirmación.
+- El panel acepta fotos JPG, PNG o WebP, las reduce en el navegador y permite solicitar a Meshy una referencia GLB que se puede girar y acercar en el lienzo.
 - El botón de descarga genera un CSV del despiece actual.
 
-El asistente no está conectado a una IA generativa: una integración real necesita un servidor que mantenga privada la clave del proveedor. Fotos y planos aún no se analizan. El visor no es un CAD completo y el cálculo de materiales es preliminar. Los proyectos quedan solo en el navegador actual; todavía no hay sincronización, precios ni optimización de tableros.
+La generación de fotos funciona mediante una Vercel Function en `api/image-to-3d.ts`; la clave de Meshy permanece del lado del servidor. El modelo generado es solo una referencia visual: no confirma dimensiones ni se convierte en piezas o despiece. El clóset paramétrico sigue siendo la fuente de verdad para medidas y CSV. El visor no es un CAD completo y el cálculo de materiales es preliminar. Los proyectos quedan solo en el navegador actual; todavía no hay sincronización, precios ni optimización de tableros.
+
+### Activar foto a 3D
+
+1. Despliega este repositorio como proyecto en Vercel para habilitar `/api/image-to-3d`.
+2. En las variables de entorno de Vercel configura `MESHY_API_KEY` y `MUEBLEA_IMAGE3D_ENABLED=true`. Añade los orígenes de producción a `MUEBLEA_ALLOWED_ORIGINS` separados por comas.
+3. En el build de GitHub Pages configura `NEXT_PUBLIC_MUEBLEA_API_ORIGIN` con el origen HTTPS del proyecto Vercel para que la web estática llame al servicio.
+
+La plantilla de variables está en `.env.example`. Nunca publiques `MESHY_API_KEY` ni la guardes en una variable `NEXT_PUBLIC_*`. La solicitud al proveedor ocurre solo al pulsar **Generar modelo 3D**.
 
 ## Ejecutar
 
