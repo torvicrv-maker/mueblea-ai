@@ -5,6 +5,8 @@ const { buildWardrobe } = require('../.test-dist/core/furniture/buildWardrobe.js
 const { boardAreaM2, edgeLengthM } = require('../.test-dist/core/furniture/metrics.js');
 const { partWorldSize } = require('../.test-dist/core/furniture/worldSize.js');
 const { validateFurnitureModel } = require('../.test-dist/core/furniture/validateFurnitureModel.js');
+const { proposeFurnitureDimensions } = require('../.test-dist/core/furniture/promptProposal.js');
+const { readSavedProjects, writeSavedProjects } = require('../.test-dist/core/furniture/projectStorage.js');
 
 function byId(model, id) {
   const part = model.parts.find((item) => item.id === id);
@@ -101,4 +103,42 @@ test('all generated parts stay inside the furniture envelope', () => {
     assert.ok(part.transform.y + sy / 2 <= model.dimensions.height + epsilon, `${part.id} crosses y-max`);
     assert.ok(part.transform.z + sz / 2 <= model.dimensions.depth + epsilon, `${part.id} crosses z-max`);
   }
+});
+
+test('text proposals understand metric dimensions and keep unsupported layout changes explicit', () => {
+  const proposal = proposeFurnitureDimensions(
+    'Un clóset de 2,40 m de ancho, 2,30 m de alto y 60 cm de fondo, con seis cajones',
+    { width: 2400, height: 2300, depth: 600 }
+  );
+
+  assert.equal(proposal.status, 'ready');
+  assert.deepEqual(proposal.dimensions, { width: 2400, height: 2300, depth: 600 });
+  assert.deepEqual(proposal.changedKeys, ['width', 'height', 'depth']);
+  assert.match(proposal.warnings[0], /distribución interior/);
+});
+
+test('text proposals can parse a dimension triplet and reject dimensions below minimum', () => {
+  const valid = proposeFurnitureDimensions('2400 x 2300 x 600 mm', { width: 1200, height: 2000, depth: 450 });
+  const invalid = proposeFurnitureDimensions('clóset de 30 cm de ancho', { width: 2400, height: 2300, depth: 600 });
+
+  assert.equal(valid.status, 'ready');
+  assert.deepEqual(valid.dimensions, { width: 2400, height: 2300, depth: 600 });
+  assert.equal(invalid.status, 'invalid');
+  assert.deepEqual(invalid.dimensions, { width: 2400, height: 2300, depth: 600 });
+});
+
+test('saved projects use a versioned storage envelope and reject corrupt records', () => {
+  const projects = [{
+    id: 'project-1',
+    name: 'Clóset dormitorio',
+    dimensions: { width: 2400, height: 2300, depth: 600 },
+    material: 'oak',
+    updatedAt: '2026-09-28T12:00:00.000Z',
+  }];
+  const parsed = readSavedProjects(writeSavedProjects(projects));
+
+  assert.deepEqual(parsed, projects);
+  assert.deepEqual(readSavedProjects('{broken'), []);
+  assert.deepEqual(readSavedProjects(JSON.stringify({ version: 2, projects })), []);
+  assert.deepEqual(readSavedProjects(JSON.stringify({ version: 1, projects: [{ ...projects[0], dimensions: { width: NaN, height: 1, depth: 1 } }] })), []);
 });

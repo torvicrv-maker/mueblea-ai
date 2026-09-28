@@ -327,3 +327,121 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+/* 3D controls, project storage, and typed assistant preview */
+.projectName { min-width: 0; gap: 2px; }
+.projectName input { width: clamp(120px, 18vw, 235px); padding: 0; border: 0; outline: 0; background: transparent; color: #262a2e; font-size: 12px; font-weight: 700; text-overflow: ellipsis; }
+.projectName input:focus { text-decoration: underline; text-decoration-color: #a8cde6; text-underline-offset: 4px; }
+.projectName span { max-width: 235px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editorActions { gap: 8px; }
+.toolbarQuiet, .saveProjectButton { min-height: 36px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid #e4e7e9; border-radius: 8px; background: white; color: #525a61; font-size: 10px; font-weight: 660; cursor: pointer; white-space: nowrap; }
+.toolbarQuiet:hover { border-color: #bcd7e8; background: #f7fbfe; }
+.toolbarQuiet span { min-width: 16px; height: 16px; display: grid; place-items: center; border-radius: 99px; background: #f0f2f3; color: #758089; font-size: 8px; }
+.saveProjectButton { border-color: #1489da; background: #eaf6fd; color: #0878c9; }
+.saveProjectButton:hover { background: #dcf0fc; }
+.saveProjectButton:disabled, .downloadButton:disabled, .analyzeButton:disabled { opacity: .48; cursor: not-allowed; }
+.rightPanelTabs { gap: 12px; }
+.canvasViewLabel.proposalViewLabel { color: #936720; }
+.canvasViewLabel.proposalViewLabel > span { background: #e2a833; }
+.threeModelViewport { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; touch-action: none; }
+.threeModelViewport > svg { width: 100%; height: 100%; display: block; touch-action: none; }
+.canvasStage .threeModelViewport > svg { background-color: #fafbfc; background-image: radial-gradient(#e3e7ea .7px, transparent .7px); background-size: 18px 18px; }
+.orbitHint { position: absolute; top: 43px; left: 14px; z-index: 3; padding: 5px 7px; border: 1px solid rgba(229,232,235,.9); border-radius: 5px; background: rgba(255,255,255,.88); color: #8b9298; font-size: 8px; pointer-events: none; }
+.resetViewButton { position: absolute; z-index: 3; top: 12px; right: 13px; width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid #e3e6e8; border-radius: 7px; background: rgba(255,255,255,.93); color: #65717a; font-size: 18px; line-height: 1; cursor: pointer; }
+.resetViewButton:hover { border-color: #a8d2ed; color: var(--accent-dark); }
+.heroPreviewStage .orbitHint { top: 11px; left: 13px; }
+.heroPreviewStage .resetViewButton { top: 8px; right: 9px; }
+
+.assistantShortcut { width: 100%; margin-top: 17px; padding: 9px; display: flex; align-items: center; gap: 8px; text-align: left; border: 1px solid #dcebf5; border-radius: 7px; background: #f7fbfe; color: #2780b4; cursor: pointer; }
+.assistantShortcut > span:first-child { font-size: 13px; }
+.assistantShortcut > span:nth-child(2) { flex: 1; }
+.assistantShortcut > span:last-child { color: #8da7b8; font-size: 13px; }
+.assistantShortcut strong, .assistantShortcut small { display: block; }
+.assistantShortcut strong { color: #557184; font-size: 9px; font-weight: 690; }
+.assistantShortcut small { margin-top: 3px; color: #8c9aa4; font-size: 8px; }
+.assistantShortcut:hover { border-color: #a8d2ed; background: #f0f8fd; }
+.assistantIcon { background: #e7f4fc; }
+.assistantForm { margin-top: 15px; display: grid; gap: 8px; }
+.assistantForm label { color: #626970; font-size: 10px; font-weight: 650; }
+.assistantForm textarea { width: 100%; min-height: 91px; padding: 10px; resize: vertical; border: 1px solid #e3e6e8; border-radius: 7px; background: #fff; color: #333a40; outline: none; font-size: 10px; line-height: 1.5; }
+.assistantForm textarea::placeholder { color: #a0a6ab; }
+.assistantForm textarea:focus { border-color: #8bc3e7; box-shadow: 0 0 0 3px rgba(19,143,232,.09); }
+.analyzeButton { min-height: 36px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 7px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 680; cursor: pointer; }
+.analyzeButton:hover:not(:disabled) { background: var(--accent-dark); }
+.localAssistantNote { margin-top: 13px; padding: 9px; border: 1px solid #e7edf1; border-radius: 7px; background: #f7f9fa; }
+.localAssistantNote strong { display: block; color: #616b73; font-size: 9px; }
+.localAssistantNote p { margin: 4px 0 0; color: #8a9299; font-size: 8px; line-height: 1.5; }
+.proposalCard { margin-top: 13px; padding: 10px; border: 1px solid #cce6f6; border-radius: 8px; background: #f5fbff; }
+.proposalCard.proposalError { border-color: #efdfc7; background: #fffaf2; }
+.proposalMessage { margin: 7px 0 0; color: #56626a; font-size: 9px; line-height: 1.45; }
+.proposalDimensions { margin-top: 8px; display: grid; gap: 4px; }
+.proposalDimensions > div { padding: 6px 0; display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid #e4eef4; }
+.proposalDimensions span { color: #7f8990; font-size: 8px; }
+.proposalDimensions strong { color: #3d5664; font-size: 8px; font-weight: 680; font-variant-numeric: tabular-nums; }
+.proposalDimensions i { padding: 0 2px; color: var(--accent); font-style: normal; }
+.proposalWarning { margin: 8px 0 0; color: #966c35; font-size: 8px; line-height: 1.45; }
+.proposalPreviewHint { margin: 8px 0 0; color: #70818c; font-size: 8px; line-height: 1.45; }
+.proposalActions { margin-top: 10px; display: flex; gap: 7px; }
+.applyProposalButton, .discardProposalButton { min-height: 30px; padding: 0 9px; border-radius: 6px; font-size: 8px; font-weight: 680; cursor: pointer; }
+.applyProposalButton { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
+.applyProposalButton:hover { background: var(--accent-dark); }
+.discardProposalButton { border: 1px solid #e0e4e6; background: #fff; color: #717a81; }
+.discardProposalButton:hover { border-color: #c6dce9; color: #476273; }
+
+.modalBackdrop { position: fixed; z-index: 1000; inset: 0; padding: 18px; display: grid; place-items: center; background: rgba(22,29,34,.38); backdrop-filter: blur(4px); }
+.projectsDialog { width: min(100%, 490px); max-height: min(84vh, 700px); overflow: auto; padding: 19px; border: 1px solid #e8eaec; border-radius: 13px; background: #fff; box-shadow: 0 24px 70px rgba(19,29,37,.22); }
+.projectsDialogHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.projectsDialogHeader h2 { margin: 5px 0 0; font-size: 20px; letter-spacing: -.045em; }
+.projectsDialogHeader > button { width: 29px; height: 29px; border: 0; border-radius: 7px; background: #f2f4f5; color: #68727a; font-size: 20px; line-height: 1; cursor: pointer; }
+.projectsDialogCopy { margin: 10px 0 15px; color: #788189; font-size: 10px; line-height: 1.5; }
+.savedProjectList { display: grid; gap: 7px; }
+.savedProjectRow { min-height: 55px; padding: 8px 9px; display: flex; align-items: center; gap: 10px; border: 1px solid #e9ecee; border-radius: 7px; }
+.openSavedProject { min-width: 0; flex: 1; padding: 0; display: grid; gap: 5px; text-align: left; border: 0; background: transparent; cursor: pointer; }
+.openSavedProject strong { overflow: hidden; color: #363d42; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.openSavedProject span { color: #91989e; font-size: 8px; }
+.openSavedProject i { width: 3px; height: 3px; margin: 0 4px 2px; display: inline-block; border-radius: 50%; background: #aab0b5; }
+.deleteSavedProject { min-height: 27px; padding: 0 8px; border: 1px solid #e8e9e9; border-radius: 5px; background: #fff; color: #8a7070; font-size: 8px; cursor: pointer; }
+.deleteSavedProject:hover { border-color: #e8c7c7; background: #fff9f9; color: #a54e4e; }
+.emptyProjects { min-height: 132px; display: grid; place-content: center; justify-items: center; gap: 7px; border: 1px dashed #dfe3e5; border-radius: 8px; background: #fafbfb; text-align: center; }
+.emptyProjects > span { color: #aab4ba; font-size: 23px; }
+.emptyProjects strong { color: #646e75; font-size: 10px; }
+.emptyProjects small { color: #949ca2; font-size: 9px; }
+.storageError, .storageSuccess { margin: 0 0 10px; padding: 8px; border-radius: 6px; font-size: 9px; }
+.storageError { background: #fff4ee; color: #9c644a; }
+.storageSuccess { background: #eff9f2; color: #43805a; }
+.projectsDialogFooter { margin-top: 14px; display: flex; justify-content: space-between; gap: 9px; }
+.newProjectButton, .dialogDoneButton { min-height: 35px; padding: 0 11px; border-radius: 7px; font-size: 9px; font-weight: 660; cursor: pointer; }
+.newProjectButton { border: 1px solid #dce8ef; background: #f8fbfd; color: #537287; }
+.dialogDoneButton { border: 1px solid #17191c; background: #17191c; color: #fff; }
+
+@media (max-width: 760px) {
+  .editorTopbar { min-height: 0; padding: 9px 12px; display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; }
+  .editorBrandSide { min-height: 33px; gap: 8px; }
+  .projectName { min-width: 0; flex: 1; }
+  .projectName input { width: min(100%, 210px); font-size: 11px; }
+  .projectName span { max-width: 190px; font-size: 8px; }
+  .editorActions { width: 100%; justify-content: flex-end; gap: 6px; }
+  .toolbarQuiet, .saveProjectButton { min-height: 32px; padding: 0 9px; font-size: 9px; }
+  .downloadButton { min-height: 32px; padding: 0 9px; }
+  .rightPanelTabs { gap: clamp(8px, 4vw, 15px); }
+  .rightPanelTabs .panelTab { font-size: 10px; }
+  .assistantContent { padding-bottom: 17px; }
+  .assistantForm { grid-template-columns: 1fr; }
+  .assistantForm textarea { min-height: 78px; }
+  .analyzeButton { min-height: 38px; font-size: 10px; }
+  .localAssistantNote { margin-top: 10px; }
+  .proposalCard { margin-top: 11px; }
+  .canvasStage .orbitHint { top: 48px; left: 12px; }
+  .canvasStage .resetViewButton { top: 10px; right: 10px; }
+  .heroPreviewStage .orbitHint { top: 10px; left: 12px; }
+  .heroPreviewStage .resetViewButton { top: 7px; right: 8px; }
+  .projectsDialog { padding: 16px; }
+}
+@media (max-width: 390px) {
+  .editorActions { justify-content: space-between; }
+  .toolbarQuiet, .saveProjectButton { padding: 0 7px; font-size: 8px; }
+  .downloadButton { gap: 4px; padding: 0 7px; font-size: 8px; }
+  .rightPanelTabs { justify-content: space-between; gap: 6px; }
+  .rightPanelTabs .panelTab { font-size: 9px; }
+  .canvasStage .orbitHint { font-size: 7px; }
+}

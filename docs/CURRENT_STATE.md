@@ -1,37 +1,27 @@
-# CURRENT STATE
+# Estado actual
 
-Fecha de checkpoint inicial: 2026-09-26.
+Última actualización: 2026-09-27.
 
-## Hecho
-- Arquitectura multiagente definida.
-- Fuente canónica definida: `FurnitureModel`.
-- Starter Next.js creado.
-- Modelo mínimo de clóset determinístico.
-- Vista isométrica SVG, ligera y compatible con móviles.
-- Despiece y métricas preliminares derivados del mismo modelo.
-- Validador de IDs, dimensiones, valores finitos, orientación y envelope físico creado.
-- Suite A7 del Furniture Core: 7/7 pruebas PASS.
-- Portada pública en `/` separada del espacio de trabajo `/designer/`.
-- Editor ordenado en biblioteca/elementos, lienzo y panel de parámetros/materiales.
-- Selector de tres acabados para la ilustración isométrica y descarga CSV del despiece actual.
-- Portada y editor reorganizados para pantallas móviles.
+## Incluido
+- Arquitectura basada en `FurnitureModel` como fuente canónica de geometría y medidas fabricables.
+- Portada en `/` y espacio de diseño en `/designer/`, con biblioteca/elementos a la izquierda, lienzo al centro y ajustes a la derecha.
+- Modelo paramétrico determinístico de clóset base; las medidas gobiernan el modelo, sus métricas y el despiece CSV.
+- Visor manipulable hecho con geometría Three.js y `SVGRenderer`, con giro, zoom, selección resaltada y restablecimiento de cámara. Renderiza a SVG para funcionar en navegadores móviles sin WebGL.
+- Selector de tres acabados visuales (roble claro, blanco mate y nogal).
+- Proyectos guardados en `localStorage` del navegador con esquema versionado, lista, carga, renombrado, nuevo y eliminación.
+- Asistente local basado en reglas que propone ancho, alto y fondo desde medidas en texto, muestra las diferencias y una vista previa antes de confirmar.
+- CSV del despiece básico y métricas preliminares desde el modelo canónico.
+- Pruebas del core para geometría, métricas, propuestas de medidas y lectura de proyectos guardados.
 
-## No hecho todavía
-- Visor CAD/3D interactivo, geometría de puertas/cajones y selección espacial de piezas.
-- Guardado de proyectos o persistencia local.
-- Persistencia.
-- Supabase/Auth/RLS.
-- IA real.
-- Catálogo real de melaminas y herrajes.
-- Cajones, puertas, bisagras, correderas.
-- Nesting.
-- Presupuestos completos.
-- DXF/CNC.
+## Límites actuales
+- El asistente reconoce dimensiones y unidades comunes; no llama a un modelo generativo ni interpreta distribución de cajones, puertas o espacios para colgar.
+- Los proyectos se quedan en el navegador y dispositivo donde se guardan; no hay cuenta ni sincronización.
+- El visor es un modelo paramétrico demostrativo, no un CAD completo: faltan texturas y sombras avanzadas, colocación espacial, catálogo de herrajes y construcción detallada de puertas/cajones.
+- Los acabados son colores ilustrativos. Las métricas y el CSV son preliminares, no planos certificados para fabricar.
+- Aún no hay Supabase/Auth/RLS, precios, optimización de tableros, nesting, DXF o CNC.
 
-La vista actual es una representación isométrica SVG. Las métricas son preliminares y el CSV contiene el despiece básico del modelo; no equivale a documentación lista para fabricar.
+## Próxima arquitectura
+Para activar IA generativa hace falta una función de servidor que guarde la clave del proveedor y devuelva acciones tipadas. El flujo debe seguir siendo intención → acción tipada → validación del core → vista previa → confirmación → ejecución. La IA no modifica la geometría canónica directamente.
 
-## Corrección arquitectónica B0
-Se detectó y corrigió la mezcla entre bounding-box 3D y dimensiones de corte. El modelo ahora separa dimensiones fabricables y orientación espacial.
-
-## QA de BLOQUE 0
-`B0-A7-001` está PASS. El 2026-09-26 se instaló el lockfile y `npm run check` pasó: typecheck, 7/7 pruebas y build de producción. `B0-A0-003 / CHECKPOINT-001` queda PASS.
+## QA
+`npm run check` pasa TypeScript, 10 pruebas y build de producción.
