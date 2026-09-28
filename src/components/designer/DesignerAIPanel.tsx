@@ -71,6 +71,7 @@ export function DesignerAIPanel({
   const [isPreparingPhoto, setIsPreparingPhoto] = useState(false);
   const [isGeneratingModel, setIsGeneratingModel] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [photoServiceReady, setPhotoServiceReady] = useState(Boolean(process.env.NEXT_PUBLIC_MUEBLEA_API_ORIGIN?.trim()));
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const dictationBaseRef = useRef("");
   const recognitionErrorRef = useRef(false);
@@ -80,6 +81,7 @@ export function DesignerAIPanel({
   useEffect(() => {
     const speechWindow = window as SpeechWindow;
     setSpeechSupported(Boolean(speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition));
+    setPhotoServiceReady(Boolean(process.env.NEXT_PUBLIC_MUEBLEA_API_ORIGIN?.trim()) || !window.location.hostname.endsWith("github.io"));
     return () => recognitionRef.current?.abort();
   }, []);
 
@@ -370,14 +372,16 @@ export function DesignerAIPanel({
           disabled={isPreparingPhoto || isGeneratingModel}
         />
         <div className="imageTo3DActions">
-          <button className="imageTo3DButton" type="button" onClick={() => void generateModelFromPhoto()} disabled={!photoDataUri || isPreparingPhoto || isGeneratingModel}>
+          <button className="imageTo3DButton" type="button" onClick={() => void generateModelFromPhoto()} disabled={!photoDataUri || !photoServiceReady || isPreparingPhoto || isGeneratingModel}>
             {isGeneratingModel ? `Generando… ${generationProgress}%` : "Generar modelo 3D"}
           </button>
           {photoDataUri && !isGeneratingModel ? <button className="imageClearButton" type="button" onClick={() => { setPhotoDataUri(null); setPhotoStatus(""); }}>Quitar foto</button> : null}
         </div>
         {isGeneratingModel ? <progress className="imageTo3DProgress" max="100" value={generationProgress} aria-label="Avance de generación 3D" /> : null}
         <p className={photoStatus && /no pudo|no se pudo|tardando|todavía no está conectado|demasiado|inválida/i.test(photoStatus) ? "imageTo3DStatus error" : "imageTo3DStatus"} role="status" aria-live="polite">
-          {photoStatus || "Al generar, la imagen se enviará a Meshy para crear el modelo."}
+          {photoStatus || (!photoServiceReady
+            ? "La conexión con el servidor seguro aún está pendiente. Puedes cargar la foto; la generación se habilitará al conectarlo."
+            : "Al generar, la imagen se enviará a Meshy para crear el modelo.")}
         </p>
         <p className="imageTo3DDisclaimer">Es una referencia visual. Una sola foto no confirma medidas, parte trasera ni detalles constructivos. No se usa para el despiece.</p>
         {hasGeneratedModel ? <button className="removeGeneratedModelButton" type="button" onClick={onClearGeneratedModel}>Quitar modelo generado</button> : null}
