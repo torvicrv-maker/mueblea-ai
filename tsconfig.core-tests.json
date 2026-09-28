@@ -11,5 +11,5 @@
     "rootDir": "src",
     "types": []
   },
-  "include": ["src/core/furniture/**/*.ts"]
+  "include": ["src/core/**/*.ts"]
 }

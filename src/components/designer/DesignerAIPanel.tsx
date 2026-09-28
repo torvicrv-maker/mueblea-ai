@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { FurnitureDimensions } from "@/core/furniture/types";
 import { proposeFurnitureDimensions } from "@/core/furniture/promptProposal";
 import type { DimensionKey, FurniturePromptProposal } from "@/core/furniture/promptProposal";
+import { buildDictationText, replaceUpdatedSpeechResults } from "@/core/assistant/dictationTranscript";
 
 type MessageRole = "assistant" | "user";
 interface ConversationMessage {
@@ -13,7 +14,7 @@ interface ConversationMessage {
 }
 
 interface SpeechRecognitionAlternativeLike { transcript: string }
-interface SpeechRecognitionResultLike { readonly 0: SpeechRecognitionAlternativeLike }
+interface SpeechRecognitionResultLike { readonly 0: SpeechRecognitionAlternativeLike; readonly isFinal: boolean }
 interface SpeechRecognitionEventLike extends Event {
   readonly resultIndex: number;
   readonly results: ArrayLike<SpeechRecognitionResultLike>;
@@ -62,6 +63,7 @@ export function DesignerAIPanel({
   const [dictationStatus, setDictationStatus] = useState("");
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const dictationBaseRef = useRef("");
+  const dictationSegmentsRef = useRef<string[]>([]);
   const recognitionErrorRef = useRef(false);
   const messageCounterRef = useRef(0);
   const conversationRef = useRef<HTMLDivElement>(null);
@@ -126,13 +128,15 @@ export function DesignerAIPanel({
       recognition.continuous = true;
       recognition.interimResults = true;
       dictationBaseRef.current = draft.trim();
+      dictationSegmentsRef.current = [];
       recognitionErrorRef.current = false;
       recognition.onresult = (event) => {
-        const transcript = Array.from({ length: event.results.length }, (_, index) => event.results[index]?.[0]?.transcript ?? "")
-          .filter(Boolean)
-          .join(" ")
-          .trim();
-        setDraft([dictationBaseRef.current, transcript].filter(Boolean).join(" "));
+        dictationSegmentsRef.current = replaceUpdatedSpeechResults(
+          dictationSegmentsRef.current,
+          event.resultIndex,
+          event.results,
+        );
+        setDraft(buildDictationText(dictationBaseRef.current, dictationSegmentsRef.current));
         if (proposal) onProposalChange(null);
       };
       recognition.onerror = (event) => {
