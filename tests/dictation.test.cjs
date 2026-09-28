@@ -2,36 +2,54 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  buildSpeechRecognitionTranscript,
   buildDictationText,
-  replaceUpdatedSpeechResults,
 } = require('../.test-dist/core/assistant/dictationTranscript.js');
 
-function speechResults(...transcripts) {
-  return transcripts.map((transcript) => ({ 0: { transcript } }));
+function speechResults(...results) {
+  return results.map(([transcript, isFinal]) => ({ 0: { transcript }, isFinal }));
 }
 
-test('interim dictation updates replace the previous hypothesis instead of duplicating it', () => {
-  let segments = [];
-  segments = replaceUpdatedSpeechResults(segments, 0, speechResults('Hola'));
-  assert.equal(buildDictationText('', segments), 'Hola');
+test('cumulative interim hypotheses are merged once, matching the repeated-text failure', () => {
+  const results = speechResults(
+    ['Hola', false],
+    ['Hola me', false],
+    ['Hola me gustaría', false],
+    ['Hola me gustaría que', false],
+    ['Hola me gustaría que me ayudes', false],
+  );
 
-  segments = replaceUpdatedSpeechResults(segments, 0, speechResults('Hola me'));
-  assert.equal(buildDictationText('', segments), 'Hola me');
-
-  segments = replaceUpdatedSpeechResults(segments, 0, speechResults('Hola me gustaría'));
-  assert.equal(buildDictationText('', segments), 'Hola me gustaría');
+  assert.equal(buildSpeechRecognitionTranscript(results), 'Hola me gustaría que me ayudes');
 });
 
-test('new speech segments preserve finalized text and replace only the changed result', () => {
-  let segments = replaceUpdatedSpeechResults([], 0, speechResults('Hola me gustaría'));
-  segments = replaceUpdatedSpeechResults(segments, 1, speechResults('Hola me gustaría', 'un clóset'));
-  segments = replaceUpdatedSpeechResults(segments, 1, speechResults('Hola me gustaría', 'un clóset de 2,4 metros'));
+test('final results are retained while overlapping interim fragments update cleanly', () => {
+  const results = speechResults(
+    ['Hola me gustaría', true],
+    ['Hola me gustaría un clóset', false],
+    ['Hola me gustaría un clóset de 2,4 metros', false],
+  );
 
-  assert.equal(buildDictationText('', segments), 'Hola me gustaría un clóset de 2,4 metros');
+  assert.equal(buildSpeechRecognitionTranscript(results), 'Hola me gustaría un clóset de 2,4 metros');
+});
+
+test('separate interim fragments remain when they do not repeat earlier words', () => {
+  const results = speechResults(
+    ['Hola me gustaría', true],
+    ['un clóset', false],
+    ['con cajones', false],
+  );
+
+  assert.equal(buildSpeechRecognitionTranscript(results), 'Hola me gustaría un clóset con cajones');
 });
 
 test('dictation appends to existing text exactly once', () => {
-  const segments = replaceUpdatedSpeechResults([], 0, speechResults('ajústalo a 2,4 metros'));
+  const recognizedText = buildSpeechRecognitionTranscript(speechResults(['ajústalo a 2,4 metros', true]));
 
-  assert.equal(buildDictationText('Necesito un clóset', segments), 'Necesito un clóset ajústalo a 2,4 metros');
+  assert.equal(buildDictationText('Necesito un clóset', recognizedText), 'Necesito un clóset ajústalo a 2,4 metros');
+});
+
+test('distinct finalized repetitions remain intact', () => {
+  const results = speechResults(['Hola', true], ['Hola', true]);
+
+  assert.equal(buildSpeechRecognitionTranscript(results), 'Hola Hola');
 });
