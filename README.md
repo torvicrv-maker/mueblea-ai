@@ -21,10 +21,10 @@ Entrada de medidas → modelo paramétrico → vista isométrica → despiece pr
 - Cambiar dimensiones actualiza el modelo y sus métricas; el acabado cambia el visor.
 - El visor Three.js `SVGRenderer` permite girar y acercar el clóset sin depender de WebGL.
 - Guarda y carga proyectos en el almacenamiento de este navegador.
-- El asistente local prepara propuestas de medidas desde texto y las muestra antes de aplicarlas.
+- El módulo Diseñador IA acepta texto y dictado; prepara una acción `SET_DIMENSIONS` con vista previa y confirmación.
 - El botón de descarga genera un CSV del despiece actual.
 
-El asistente no está conectado a una IA generativa: una integración real necesita un servidor que mantenga privada la clave del proveedor. El visor no es un CAD completo y el cálculo de materiales es preliminar. Los proyectos quedan solo en el navegador actual; todavía no hay sincronización, precios ni optimización de tableros.
+El asistente no está conectado a una IA generativa: una integración real necesita un servidor que mantenga privada la clave del proveedor. Fotos y planos aún no se analizan. El visor no es un CAD completo y el cálculo de materiales es preliminar. Los proyectos quedan solo en el navegador actual; todavía no hay sincronización, precios ni optimización de tableros.
 
 ## Ejecutar
 
@@ -43,7 +43,7 @@ Cada cambio en `main` compila y publica automáticamente el sitio en GitHub Page
 
 ## Nota de validación
 
-Las dependencias están fijadas en `package-lock.json`. Validación local: `npm run check` completó typecheck, 10 pruebas del core y build de producción.
+Las dependencias están fijadas en `package-lock.json`. Validación local: `npm run check` completó typecheck, 11 pruebas del core y build de producción.
 
 
 ## QA

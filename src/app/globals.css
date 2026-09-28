@@ -445,3 +445,37 @@ a { color: inherit; }
   .rightPanelTabs .panelTab { font-size: 9px; }
   .canvasStage .orbitHint { font-size: 7px; }
 }
+
+/* Dedicated AI designer: conversation, voice input, typed action, and confirmation */
+.designerAIPanel { display: grid; align-content: start; gap: 10px; }
+.designerAIPanel > .panelDescription { margin-top: -5px; }
+.designerAIBadge { width: fit-content; padding: 5px 7px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e3edf3; border-radius: 99px; background: #f7fafc; color: #6f7b84; font-size: 8px; font-weight: 650; }
+.designerAIBadge > span { width: 6px; height: 6px; border-radius: 50%; background: #e0a22e; }
+.assistantConversation { max-height: 205px; overflow-y: auto; padding: 9px; display: grid; align-content: start; gap: 8px; border: 1px solid #e7ebee; border-radius: 8px; background: #fafbfc; overscroll-behavior: contain; }
+.assistantMessage { width: fit-content; max-width: 96%; padding: 8px 9px; border: 1px solid #e6eaed; border-radius: 7px; background: #fff; }
+.assistantMessage > span { color: #95a0a7; font-size: 7px; font-weight: 750; letter-spacing: .08em; }
+.assistantMessage p { margin: 4px 0 0; color: #58636b; font-size: 9px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.assistantMessage.userMessage { justify-self: end; border-color: #d5e9f7; background: #f0f8fe; }
+.assistantMessage.userMessage > span { color: #4384ad; }
+.assistantQuickPrompts { display: flex; flex-wrap: wrap; gap: 5px; }
+.assistantPromptChip { max-width: 100%; padding: 6px 8px; border: 1px solid #e3e8eb; border-radius: 99px; background: #fff; color: #6a747c; font-size: 8px; line-height: 1.35; text-align: left; cursor: pointer; }
+.assistantPromptChip:hover { border-color: #b5d9ef; background: #f7fbfe; color: #39759b; }
+.designerAIForm { margin-top: 0; }
+.assistantComposerActions { display: flex; align-items: center; gap: 7px; }
+.voiceButton { min-height: 36px; flex: 0 0 auto; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid #e0e5e8; border-radius: 7px; background: #fff; color: #64727b; font-size: 9px; font-weight: 660; cursor: pointer; }
+.voiceButton:hover:not(:disabled) { border-color: #bbd8e9; background: #f7fbfe; color: #3879a0; }
+.voiceButton > span { font-size: 11px; }
+.voiceButton:disabled { opacity: .48; cursor: not-allowed; }
+.voiceButton.isListening { border-color: #efc8c2; background: #fff5f3; color: #ac5147; }
+.voiceButton.isListening > span { color: #d45f53; }
+.designerAIForm .analyzeButton { flex: 1; min-width: 0; }
+.dictationStatus { min-height: 25px; margin: 0; color: #8b959c; font-size: 8px; line-height: 1.45; }
+.typedActionBadge { margin-top: 8px; padding: 5px 7px; display: inline-flex; border: 1px solid #cde4f2; border-radius: 5px; background: #edf7fd; color: #4a7f9e; font-size: 7px; font-weight: 750; letter-spacing: .04em; }
+.assistantRoadmapNote { padding: 9px; border: 1px solid #e7ecef; border-radius: 7px; background: #f8f9fa; }
+.assistantRoadmapNote strong { display: block; color: #69747b; font-size: 8px; }
+.assistantRoadmapNote p { margin: 4px 0 0; color: #8a949a; font-size: 8px; line-height: 1.5; }
+@media (max-width: 760px) {
+  .assistantConversation { max-height: 180px; }
+  .assistantComposerActions { gap: 6px; }
+  .voiceButton { min-height: 38px; padding: 0 9px; }
+}

@@ -30,4 +30,4 @@ Salida esperada:
 ## Ejecución
 `npm test`
 
-Actualmente la suite contiene 7 pruebas automatizadas usando `node:test`, sin dependencia adicional de framework de testing.
+Actualmente la suite contiene 11 pruebas automatizadas usando `node:test`, sin dependencia adicional de framework de testing.

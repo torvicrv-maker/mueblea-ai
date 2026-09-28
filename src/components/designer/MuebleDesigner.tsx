@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { buildWardrobe } from "@/core/furniture/buildWardrobe";
 import { boardAreaM2, edgeLengthM } from "@/core/furniture/metrics";
-import { proposeFurnitureDimensions } from "@/core/furniture/promptProposal";
 import { PROJECT_STORAGE_KEY, readSavedProjects, writeSavedProjects } from "@/core/furniture/projectStorage";
 import type { ProjectMaterialId, SavedFurnitureProject } from "@/core/furniture/projectStorage";
 import type { FurnitureDimensions } from "@/core/furniture/types";
 import type { FurniturePromptProposal, DimensionKey } from "@/core/furniture/promptProposal";
 import { validateFurnitureModel } from "@/core/furniture/validateFurnitureModel";
+import { DesignerAIPanel } from "./DesignerAIPanel";
 import { FurniturePreview } from "./FurniturePreview";
 
 const materials = [
@@ -22,7 +22,6 @@ type LeftTab = "library" | "elements";
 type RightTab = "parameters" | "materials" | "assistant";
 
 const DEFAULT_DIMENSIONS: FurnitureDimensions = { width: 2400, height: 2300, depth: 600 };
-const DIMENSION_LABELS: Record<DimensionKey, string> = { width: "Ancho", height: "Alto", depth: "Fondo" };
 
 export function MuebleDesigner() {
   const [dimensions, setDimensions] = useState<FurnitureDimensions>(DEFAULT_DIMENSIONS);
@@ -37,7 +36,7 @@ export function MuebleDesigner() {
   const [storageMessage, setStorageMessage] = useState("");
   const [isDirty, setIsDirty] = useState(false);
   const [showProjects, setShowProjects] = useState(false);
-  const [assistantText, setAssistantText] = useState("");
+  const [assistantSession, setAssistantSession] = useState(0);
   const [proposal, setProposal] = useState<FurniturePromptProposal | null>(null);
 
   useEffect(() => {
@@ -59,7 +58,7 @@ export function MuebleDesigner() {
   }, [showProjects]);
 
   const model = useMemo(() => buildWardrobe(dimensions), [dimensions]);
-  const displayedDimensions = proposal?.status === "ready" ? proposal.dimensions : dimensions;
+  const displayedDimensions = proposal?.status === "ready" ? proposal.action.payload : dimensions;
   const displayedModel = useMemo(() => buildWardrobe(displayedDimensions), [displayedDimensions]);
   const area = boardAreaM2(displayedModel);
   const edges = edgeLengthM(displayedModel);
@@ -127,7 +126,7 @@ export function MuebleDesigner() {
     setMaterial("oak");
     setSelectedPartId("side-left");
     setProposal(null);
-    setAssistantText("");
+    setAssistantSession((current) => current + 1);
     setIsDirty(false);
     setShowProjects(false);
     setStorageMessage("Proyecto nuevo");
@@ -141,7 +140,7 @@ export function MuebleDesigner() {
     setMaterial(project.material);
     setSelectedPartId("side-left");
     setProposal(null);
-    setAssistantText("");
+    setAssistantSession((current) => current + 1);
     setIsDirty(false);
     setStorageMessage("Proyecto cargado desde este dispositivo.");
     setShowProjects(false);
@@ -162,16 +161,12 @@ export function MuebleDesigner() {
     }
   }
 
-  function analyzePrompt(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setProposal(proposeFurnitureDimensions(assistantText, dimensions));
-  }
-
   function applyProposal() {
     if (proposal?.status !== "ready") return;
-    setDimensions({ ...proposal.dimensions });
+    setDimensions({ ...proposal.action.payload });
     setProposal(null);
     setIsDirty(true);
+    setStorageMessage("");
   }
 
   const saveLabel = storageMessage || (!storageLoaded ? "Preparando…" : isDirty ? "Cambios sin guardar" : projectId ? "Guardado en este dispositivo" : "Proyecto nuevo");
@@ -256,11 +251,11 @@ export function MuebleDesigner() {
           </section>
         </section>
 
-        <aside className="editorPanel rightPanel" aria-label="Parámetros, materiales y asistente">
+        <aside className="editorPanel rightPanel" aria-label="Parámetros, materiales y Diseñador IA">
           <div className="panelTabs rightPanelTabs" role="tablist" aria-label="Ajustes del mueble">
             <button role="tab" aria-selected={rightTab === "parameters"} className={rightTab === "parameters" ? "panelTab active" : "panelTab"} onClick={() => setRightTab("parameters")}>Parámetros</button>
             <button role="tab" aria-selected={rightTab === "materials"} className={rightTab === "materials" ? "panelTab active" : "panelTab"} onClick={() => setRightTab("materials")}>Materiales</button>
-            <button role="tab" aria-selected={rightTab === "assistant"} className={rightTab === "assistant" ? "panelTab active" : "panelTab"} onClick={() => setRightTab("assistant")}>Asistente</button>
+            <button role="tab" aria-selected={rightTab === "assistant"} className={rightTab === "assistant" ? "panelTab active" : "panelTab"} onClick={() => setRightTab("assistant")}>Diseñador IA</button>
           </div>
 
           {rightTab === "parameters" ? (
@@ -296,33 +291,7 @@ export function MuebleDesigner() {
               <div className="materialDisclaimer"><strong>Acabado visual</strong><p>El color de referencia cambia; el cálculo no incluye precios ni optimización de tableros.</p></div>
             </div>
           ) : (
-            <div className="panelContent assistantContent">
-              <div className="parameterTitle"><div><span className="panelEyebrow">ASISTENTE DE DISEÑO</span><h2>Describe las medidas</h2></div><span className="parameterIcon assistantIcon" aria-hidden="true">✦</span></div>
-              <p className="panelDescription">Puedo preparar una propuesta de ancho, alto y fondo para que la revises antes de aplicarla.</p>
-              <form className="assistantForm" onSubmit={analyzePrompt}>
-                <label htmlFor="assistant-prompt">Instrucción</label>
-                <textarea id="assistant-prompt" rows={4} value={assistantText} onChange={(event) => { setAssistantText(event.target.value); setProposal(null); }} placeholder="Ej.: Un clóset de 2,40 m de ancho, 2,30 m de alto y 60 cm de fondo" />
-                <button className="analyzeButton" type="submit" disabled={!assistantText.trim()}><span aria-hidden="true">✦</span> Preparar propuesta</button>
-              </form>
-              <div className="localAssistantNote"><strong>Prototipo local</strong><p>Interpreta dimensiones en mm, cm o m. La IA generativa en la nube requiere un servidor seguro y aún no está conectada.</p></div>
-              {proposal ? (
-                <div className={proposal.status === "ready" ? "proposalCard" : "proposalCard proposalError"} role="status">
-                  <span className="panelEyebrow">{proposal.status === "ready" ? "VISTA PREVIA" : "REVISAR INSTRUCCIÓN"}</span>
-                  <p className="proposalMessage">{proposal.message}</p>
-                  {proposal.status === "ready" && proposal.changedKeys.length > 0 ? (
-                    <div className="proposalDimensions">
-                      {proposal.changedKeys.map((key) => <div key={key}><span>{DIMENSION_LABELS[key]}</span><strong>{dimensions[key]} <i>→</i> {proposal.dimensions[key]} mm</strong></div>)}
-                    </div>
-                  ) : null}
-                  {proposal.warnings.map((warning) => <p className="proposalWarning" key={warning}>{warning}</p>)}
-                  {proposal.status === "ready" ? <p className="proposalPreviewHint">El modelo central muestra la propuesta sin cambiar el proyecto todavía.</p> : null}
-                  <div className="proposalActions">
-                    {proposal.status === "ready" ? <button type="button" className="applyProposalButton" onClick={applyProposal}>Aplicar medidas</button> : null}
-                    <button type="button" className="discardProposalButton" onClick={() => setProposal(null)}>Descartar</button>
-                  </div>
-                </div>
-              ) : null}
-            </div>
+            <DesignerAIPanel key={assistantSession} dimensions={dimensions} proposal={proposal} onProposalChange={setProposal} onApplyProposal={applyProposal} />
           )}
         </aside>
       </div>

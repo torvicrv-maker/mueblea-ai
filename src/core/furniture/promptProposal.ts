@@ -2,13 +2,21 @@ import type { FurnitureDimensions } from "./types";
 
 export type DimensionKey = keyof FurnitureDimensions;
 
-export interface FurniturePromptProposal {
-  status: "ready" | "invalid" | "no_dimensions";
+export interface SetFurnitureDimensionsAction {
+  type: "SET_DIMENSIONS";
+  payload: FurnitureDimensions;
+}
+
+interface FurniturePromptProposalBase {
   dimensions: FurnitureDimensions;
   changedKeys: DimensionKey[];
   warnings: string[];
   message: string;
 }
+
+export type FurniturePromptProposal =
+  | (FurniturePromptProposalBase & { status: "ready"; action: SetFurnitureDimensionsAction })
+  | (FurniturePromptProposalBase & { status: "invalid" | "no_dimensions"; action: null });
 
 const NUMBER = "(\\d+(?:[.,]\\d+)?)";
 const UNIT = "(mm|mil[ií]metros?|cm|cent[ií]metros?|mts?|metros?|m)";
@@ -90,6 +98,7 @@ export function proposeFurnitureDimensions(prompt: string, current: FurnitureDim
   if (changed.size === 0) {
     return {
       status: "no_dimensions",
+      action: null,
       dimensions: current,
       changedKeys: [],
       warnings,
@@ -102,6 +111,7 @@ export function proposeFurnitureDimensions(prompt: string, current: FurnitureDim
   if (invalid.length) {
     return {
       status: "invalid",
+      action: null,
       dimensions: current,
       changedKeys: [...changed],
       warnings,
@@ -111,6 +121,7 @@ export function proposeFurnitureDimensions(prompt: string, current: FurnitureDim
 
   return {
     status: "ready",
+    action: { type: "SET_DIMENSIONS", payload: next },
     dimensions: next,
     changedKeys: [...changed],
     warnings,

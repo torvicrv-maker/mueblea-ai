@@ -114,6 +114,10 @@ test('text proposals understand metric dimensions and keep unsupported layout ch
   assert.equal(proposal.status, 'ready');
   assert.deepEqual(proposal.dimensions, { width: 2400, height: 2300, depth: 600 });
   assert.deepEqual(proposal.changedKeys, ['width', 'height', 'depth']);
+  assert.deepEqual(proposal.action, {
+    type: 'SET_DIMENSIONS',
+    payload: { width: 2400, height: 2300, depth: 600 },
+  });
   assert.match(proposal.warnings[0], /distribución interior/);
 });
 
@@ -123,8 +127,18 @@ test('text proposals can parse a dimension triplet and reject dimensions below m
 
   assert.equal(valid.status, 'ready');
   assert.deepEqual(valid.dimensions, { width: 2400, height: 2300, depth: 600 });
+  assert.equal(valid.action.type, 'SET_DIMENSIONS');
   assert.equal(invalid.status, 'invalid');
+  assert.equal(invalid.action, null);
   assert.deepEqual(invalid.dimensions, { width: 2400, height: 2300, depth: 600 });
+});
+
+test('unsupported layout requests do not create a furniture action', () => {
+  const proposal = proposeFurnitureDimensions('Pon seis cajones y un espacio para colgar', { width: 2400, height: 2300, depth: 600 });
+
+  assert.equal(proposal.status, 'no_dimensions');
+  assert.equal(proposal.action, null);
+  assert.match(proposal.warnings[0], /distribución interior/);
 });
 
 test('saved projects use a versioned storage envelope and reject corrupt records', () => {
