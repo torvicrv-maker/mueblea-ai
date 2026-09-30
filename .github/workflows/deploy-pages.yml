@@ -27,6 +27,8 @@ jobs:
         run: npm ci
       - name: Verify and build static site
         run: npm run check
+        env:
+          NEXT_PUBLIC_MUEBLEA_API_ORIGIN: ${{ vars.NEXT_PUBLIC_MUEBLEA_API_ORIGIN }}
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

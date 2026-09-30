@@ -1,4 +1,5 @@
-import type { FurnitureDimensions } from "./types";
+import type { FurnitureDimensions, WardrobeLayout } from "./types";
+import { copyWardrobeLayout, DEFAULT_WARDROBE_LAYOUT, normalizeWardrobeLayout } from "./wardrobeLayout";
 
 export const PROJECT_STORAGE_KEY = "mueblea-ai.projects.v1";
 export const MATERIAL_IDS = ["oak", "white", "walnut"] as const;
@@ -9,6 +10,7 @@ export interface SavedFurnitureProject {
   name: string;
   dimensions: FurnitureDimensions;
   material: ProjectMaterialId;
+  layout: WardrobeLayout;
   updatedAt: string;
 }
 
@@ -25,14 +27,25 @@ function isDimensions(value: unknown): value is FurnitureDimensions {
     && Number.isFinite(dimensions.depth) && Number(dimensions.depth) >= 250;
 }
 
-function isSavedProject(value: unknown): value is SavedFurnitureProject {
-  if (!value || typeof value !== "object") return false;
+function parseSavedProject(value: unknown): SavedFurnitureProject | null {
+  if (!value || typeof value !== "object") return null;
   const project = value as Record<string, unknown>;
-  return typeof project.id === "string" && project.id.length > 0
+  if (!(typeof project.id === "string" && project.id.length > 0
     && typeof project.name === "string"
     && isDimensions(project.dimensions)
     && MATERIAL_IDS.includes(project.material as ProjectMaterialId)
-    && typeof project.updatedAt === "string";
+    && typeof project.updatedAt === "string")) return null;
+
+  const layout = project.layout === undefined ? copyWardrobeLayout(DEFAULT_WARDROBE_LAYOUT) : normalizeWardrobeLayout(project.layout);
+  if (!layout) return null;
+  return {
+    id: project.id,
+    name: project.name,
+    dimensions: project.dimensions,
+    material: project.material as ProjectMaterialId,
+    layout,
+    updatedAt: project.updatedAt,
+  };
 }
 
 export function readSavedProjects(raw: string | null): SavedFurnitureProject[] {
@@ -42,7 +55,7 @@ export function readSavedProjects(raw: string | null): SavedFurnitureProject[] {
     if (!parsed || typeof parsed !== "object") return [];
     const envelope = parsed as Partial<ProjectEnvelope>;
     if (envelope.version !== 1 || !Array.isArray(envelope.projects)) return [];
-    return envelope.projects.filter(isSavedProject);
+    return envelope.projects.map(parseSavedProject).filter((project): project is SavedFurnitureProject => project !== null);
   } catch {
     return [];
   }

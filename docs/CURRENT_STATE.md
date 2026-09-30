@@ -1,28 +1,22 @@
 # Estado actual
 
-Última actualización: 2026-09-27.
+Última actualización: 2026-09-30.
 
 ## Incluido
-- Arquitectura basada en `FurnitureModel` como fuente canónica de geometría y medidas fabricables.
-- Portada en `/` y espacio de diseño en `/designer/`, con biblioteca/elementos a la izquierda, lienzo al centro y ajustes a la derecha.
-- Modelo paramétrico determinístico de clóset base; las medidas gobiernan el modelo, sus métricas y el despiece CSV.
-- Visor manipulable hecho con geometría Three.js y `SVGRenderer`, con giro, zoom, selección resaltada y restablecimiento de cámara. Renderiza a SVG para funcionar en navegadores móviles sin WebGL.
-- Selector de tres acabados visuales (roble claro, blanco mate y nogal).
-- Proyectos guardados en `localStorage` del navegador con esquema versionado, lista, carga, renombrado, nuevo y eliminación.
-- Módulo dedicado Diseñador IA dentro del editor: conversación, ejemplos rápidos, entrada por texto y dictado de voz cuando el navegador lo admite.
-- El asistente convierte medidas reconocidas en la acción tipada `SET_DIMENSIONS`, comprueba mínimos, muestra preview y espera confirmación. El dictado solo rellena el texto; no ejecuta por sí mismo.
-- CSV del despiece básico y métricas preliminares desde el modelo canónico.
-- Pruebas del core para geometría, métricas, propuestas de medidas y lectura de proyectos guardados.
+- Portada en `/` y editor `/designer/`, optimizado para móvil y escritorio.
+- Clóset paramétrico de melamina: laterales, tapa, piso, divisiones, repisas, paneles de puerta y frentes de cajón.
+- Vista 3D y métricas calculadas desde `FurnitureModel`; el CSV usa las mismas piezas.
+- Proyectos guardados en `localStorage`, incluida la distribución de módulos.
+- Diseñador IA con texto, dictado y flujo de análisis de foto como propuesta revisable.
+- Función de servidor `api/design-from-photo.ts` para OpenAI Responses con salida estructurada y validación local; la credencial queda privada.
+- La distribución de foto se puede ajustar, previsualizar, confirmar o descartar antes de aplicarla.
+- Pruebas para geometría, piezas, métricas, distribución, propuestas y persistencia local.
 
-## Límites actuales
-- El asistente reconoce dimensiones y unidades comunes; no llama a un modelo generativo ni interpreta distribución de cajones, puertas o espacios para colgar. Fotos y planos todavía no se analizan.
-- Los proyectos se quedan en el navegador y dispositivo donde se guardan; no hay cuenta ni sincronización.
-- El visor es un modelo paramétrico demostrativo, no un CAD completo: faltan texturas y sombras avanzadas, colocación espacial, catálogo de herrajes y construcción detallada de puertas/cajones.
-- Los acabados son colores ilustrativos. Las métricas y el CSV son preliminares, no planos certificados para fabricar.
-- Aún no hay Supabase/Auth/RLS, precios, optimización de tableros, nesting, DXF o CNC.
-
-## Próxima arquitectura
-Para activar IA generativa hace falta una función de servidor que guarde la clave del proveedor y devuelva acciones tipadas. El flujo debe seguir siendo intención → acción tipada → validación del core → vista previa → confirmación → ejecución. La IA no modifica la geometría canónica directamente.
+## Límites y activación pendiente
+- La interfaz estática de GitHub Pages no contiene claves. El análisis de foto requiere desplegar la función en Vercel, configurar `OPENAI_API_KEY` y `MUEBLEA_VISION_ENABLED=true`, y pasar el origen Vercel a `NEXT_PUBLIC_MUEBLEA_API_ORIGIN` en Actions.
+- El modelo solo representa clósets/armarios con hasta cuatro módulos. Una foto no revela dimensiones ni interior oculto; el usuario debe revisar las suposiciones.
+- Los frentes de cajón no incluyen cajas ni herrajes. Las barras de colgar son solo una referencia visual.
+- No hay autenticación, sincronización de proyectos, costeo, optimización de tableros, planos certificados, DXF ni CNC.
 
 ## QA
-`npm run check` pasa TypeScript, 11 pruebas y build de producción.
+Ejecuta `npm run check` para TypeScript, pruebas y build estático.

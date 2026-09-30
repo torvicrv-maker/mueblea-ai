@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:core:compile": "tsc -p tsconfig.core-tests.json",
-    "test": "npm run test:core:compile && node --test tests/*.test.cjs",
+    "test:api:compile": "tsc -p tsconfig.api-tests.json",
+    "test": "npm run test:core:compile && npm run test:api:compile && node --test tests/*.test.cjs",
     "check": "npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {

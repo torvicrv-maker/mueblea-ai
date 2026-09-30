@@ -16,9 +16,10 @@
 - [ ] P1-A4-001 Versionado del modelo.
 
 ## P2 — Mueble real
-- [ ] Cajones.
-- [ ] Divisiones.
-- [ ] Puertas abatibles/corredizas.
+- [x] Divisiones interiores básicas parametrizadas.
+- [x] Puertas de panel simple y frentes visuales de cajón.
+- [ ] Cajas completas de cajón.
+- [ ] Puertas abatibles/corredizas con herrajes.
 - [ ] Bisagras y correderas.
 - [ ] Holguras configurables.
 
@@ -30,7 +31,8 @@
 - [ ] Nesting.
 
 ## P4 — IA
-- [ ] Acciones tipadas.
-- [ ] Preview/confirmación.
-- [ ] Voz.
-- [ ] Imagen/plano.
+- [x] Acción tipada `SET_DIMENSIONS` con preview/confirmación.
+- [x] Dictado de voz como borrador editable.
+- [x] Endpoint de visión para proponer distribución desde foto, con preview/confirmación.
+- [ ] Activar servicio de visión en Vercel con credencial privada.
+- [ ] Interpretar planos técnicos.

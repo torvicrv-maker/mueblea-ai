@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { buildWardrobe } from "@/core/furniture/buildWardrobe";
+import { copyWardrobeLayout, DEFAULT_WARDROBE_LAYOUT } from "@/core/furniture/wardrobeLayout";
 import { boardAreaM2, edgeLengthM } from "@/core/furniture/metrics";
 import { PROJECT_STORAGE_KEY, readSavedProjects, writeSavedProjects } from "@/core/furniture/projectStorage";
 import type { ProjectMaterialId, SavedFurnitureProject } from "@/core/furniture/projectStorage";
 import type { FurnitureDimensions } from "@/core/furniture/types";
 import type { FurniturePromptProposal, DimensionKey } from "@/core/furniture/promptProposal";
+import type { PhotoDesignProposal } from "@/core/furniture/photoProposal";
 import { validateFurnitureModel } from "@/core/furniture/validateFurnitureModel";
 import { DesignerAIPanel } from "./DesignerAIPanel";
 import { FurniturePreview } from "./FurniturePreview";
-import { GeneratedModelPreview } from "./GeneratedModelPreview";
 
 const materials = [
   { id: "oak", name: "Roble claro", color: "#d9c19e", description: "Veta natural" },
@@ -39,9 +40,8 @@ export function MuebleDesigner() {
   const [showProjects, setShowProjects] = useState(false);
   const [assistantSession, setAssistantSession] = useState(0);
   const [proposal, setProposal] = useState<FurniturePromptProposal | null>(null);
-  const [generatedModelBlob, setGeneratedModelBlob] = useState<Blob | null>(null);
-  const [generatedModelUrl, setGeneratedModelUrl] = useState<string | null>(null);
-  const [showGeneratedModel, setShowGeneratedModel] = useState(false);
+  const [wardrobeLayout, setWardrobeLayout] = useState(() => copyWardrobeLayout(DEFAULT_WARDROBE_LAYOUT));
+  const [photoProposal, setPhotoProposal] = useState<PhotoDesignProposal | null>(null);
 
   useEffect(() => {
     try {
@@ -61,30 +61,22 @@ export function MuebleDesigner() {
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [showProjects]);
 
-  useEffect(() => {
-    if (!generatedModelBlob) {
-      setGeneratedModelUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(generatedModelBlob);
-    setGeneratedModelUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [generatedModelBlob]);
-
-  const model = useMemo(() => buildWardrobe(dimensions), [dimensions]);
+  const model = useMemo(() => buildWardrobe({ ...dimensions, layout: wardrobeLayout }), [dimensions, wardrobeLayout]);
   const displayedDimensions = proposal?.status === "ready" ? proposal.action.payload : dimensions;
-  const displayedModel = useMemo(() => buildWardrobe(displayedDimensions), [displayedDimensions]);
+  const displayedLayout = photoProposal?.layout ?? wardrobeLayout;
+  const displayedModel = useMemo(() => buildWardrobe({ ...displayedDimensions, layout: displayedLayout }), [displayedDimensions, displayedLayout]);
   const area = boardAreaM2(displayedModel);
   const edges = edgeLengthM(displayedModel);
   const issues = validateFurnitureModel(displayedModel);
-  const selectedPart = model.parts.find((part) => part.id === selectedPartId) ?? model.parts[0];
+  const selectedPart = displayedModel.parts.find((part) => part.id === selectedPartId) ?? displayedModel.parts[0];
   const selectedMaterial = materials.find((item) => item.id === material) ?? materials[0];
-  const isPreviewingProposal = proposal?.status === "ready";
+  const isPreviewingProposal = proposal?.status === "ready" || Boolean(photoProposal);
 
   function updateDimension(key: DimensionKey, value: number) {
     setDimensions((current) => ({ ...current, [key]: value }));
     setIsDirty(true);
     setProposal(null);
+    setPhotoProposal(null);
     setStorageMessage("");
   }
 
@@ -117,6 +109,7 @@ export function MuebleDesigner() {
       name: projectName.trim() || "Clóset sin nombre",
       dimensions: { ...dimensions },
       material,
+      layout: copyWardrobeLayout(wardrobeLayout),
       updatedAt: new Date().toISOString(),
     };
     const nextProjects = [saved, ...savedProjects.filter((project) => project.id !== id)];
@@ -138,10 +131,10 @@ export function MuebleDesigner() {
     setProjectName("Clóset sin título");
     setDimensions(DEFAULT_DIMENSIONS);
     setMaterial("oak");
+    setWardrobeLayout(copyWardrobeLayout(DEFAULT_WARDROBE_LAYOUT));
     setSelectedPartId("side-left");
     setProposal(null);
-    setGeneratedModelBlob(null);
-    setShowGeneratedModel(false);
+    setPhotoProposal(null);
     setAssistantSession((current) => current + 1);
     setIsDirty(false);
     setShowProjects(false);
@@ -154,10 +147,10 @@ export function MuebleDesigner() {
     setProjectName(project.name);
     setDimensions({ ...project.dimensions });
     setMaterial(project.material);
+    setWardrobeLayout(copyWardrobeLayout(project.layout));
     setSelectedPartId("side-left");
     setProposal(null);
-    setGeneratedModelBlob(null);
-    setShowGeneratedModel(false);
+    setPhotoProposal(null);
     setAssistantSession((current) => current + 1);
     setIsDirty(false);
     setStorageMessage("Proyecto cargado desde este dispositivo.");
@@ -182,6 +175,15 @@ export function MuebleDesigner() {
   function applyProposal() {
     if (proposal?.status !== "ready") return;
     setDimensions({ ...proposal.action.payload });
+    setProposal(null);
+    setIsDirty(true);
+    setStorageMessage("");
+  }
+
+  function applyPhotoProposal(nextProposal: PhotoDesignProposal) {
+    if (!nextProposal.layout) return;
+    setWardrobeLayout(copyWardrobeLayout(nextProposal.layout));
+    setPhotoProposal(null);
     setProposal(null);
     setIsDirty(true);
     setStorageMessage("");
@@ -217,7 +219,7 @@ export function MuebleDesigner() {
         <aside className="editorPanel leftPanel" aria-label="Biblioteca y elementos del modelo">
           <div className="panelTabs" role="tablist" aria-label="Panel del proyecto">
             <button role="tab" aria-selected={leftTab === "library"} className={leftTab === "library" ? "panelTab active" : "panelTab"} onClick={() => setLeftTab("library")}>Biblioteca</button>
-            <button role="tab" aria-selected={leftTab === "elements"} className={leftTab === "elements" ? "panelTab active" : "panelTab"} onClick={() => setLeftTab("elements")}>Elementos <span>{model.parts.length}</span></button>
+            <button role="tab" aria-selected={leftTab === "elements"} className={leftTab === "elements" ? "panelTab active" : "panelTab"} onClick={() => setLeftTab("elements")}>Elementos <span>{displayedModel.parts.length}</span></button>
           </div>
 
           {leftTab === "library" ? (
@@ -232,9 +234,9 @@ export function MuebleDesigner() {
             </div>
           ) : (
             <div className="panelContent">
-              <div className="panelHeading"><span>PIEZAS DEL CLÓSET</span><span>{model.parts.length} total</span></div>
+              <div className="panelHeading"><span>PIEZAS DEL CLÓSET</span><span>{displayedModel.parts.length} total</span></div>
               <div className="elementList">
-                {model.parts.map((part, index) => (
+                {displayedModel.parts.map((part, index) => (
                   <button key={part.id} className={selectedPart.id === part.id ? "elementRow selected" : "elementRow"} type="button" onClick={() => { setSelectedPartId(part.id); setRightTab("parameters"); }}>
                     <span className="elementThumb" aria-hidden="true"><span /></span>
                     <span className="elementInfo"><strong>{part.name}</strong><small>{Math.round(part.length)} × {Math.round(part.width)} mm</small></span>
@@ -251,20 +253,16 @@ export function MuebleDesigner() {
           <div className="canvasToolbar">
             <div><span className="canvasBreadcrumb">PROYECTO</span><span className="canvasProject"> / {projectName || "Clóset sin nombre"}</span></div>
             <div className="canvasToolbarControls">
-              <span className={isPreviewingProposal ? "canvasViewLabel proposalViewLabel" : "canvasViewLabel"}><span />{showGeneratedModel ? "Referencia 3D desde foto" : isPreviewingProposal ? "Vista previa sin aplicar" : "Modelo 3D interactivo"}</span>
-              {generatedModelUrl ? <button className="canvasModelToggle" type="button" onClick={() => setShowGeneratedModel((current) => !current)}>{showGeneratedModel ? "Ver clóset paramétrico" : "Ver 3D de la foto"}</button> : null}
+              <span className={isPreviewingProposal ? "canvasViewLabel proposalViewLabel" : "canvasViewLabel"}><span />{isPreviewingProposal ? "Vista previa sin aplicar" : "Modelo 3D interactivo"}</span>
             </div>
           </div>
           <div className="canvasStage">
-            {showGeneratedModel && generatedModelUrl
-              ? <GeneratedModelPreview modelUrl={generatedModelUrl} />
-              : <FurniturePreview model={displayedModel} material={material} selectedPartId={selectedPartId} />}
-            {!showGeneratedModel ? <div className="canvasSelection"><span className="selectionMark" />{selectedPart.name}<span>SELECCIONADO</span></div> : null}
-            {!showGeneratedModel ? <div className="canvasScale">MM <span>·</span> {isPreviewingProposal ? "PROPUESTA" : "CLÓSET BASE"}</div> : null}
+            <FurniturePreview model={displayedModel} material={material} selectedPartId={selectedPart.id} />
+            <div className="canvasSelection"><span className="selectionMark" />{selectedPart.name}<span>SELECCIONADO</span></div>
+            <div className="canvasScale">MM <span>·</span> {isPreviewingProposal ? "PROPUESTA" : "CLÓSET BASE"}</div>
           </div>
           <section className="productionPanel" aria-label="Resumen de producción">
             <div className="productionHeading"><div><span className="panelEyebrow">{isPreviewingProposal ? "RESUMEN DE LA PROPUESTA" : "RESUMEN DEL MODELO"}</span><h2>{isPreviewingProposal ? "Vista previa de cambios" : "Listo para revisar"}</h2></div><span className={issues.length ? "validationTag warning" : "validationTag"}>{issues.length ? "Revisar medidas" : "✓ Medidas válidas"}</span></div>
-            {showGeneratedModel ? <p className="generatedModelNote">El modelo de la foto es solo una referencia visual. Las piezas, medidas y el CSV de esta sección pertenecen al clóset paramétrico.</p> : null}
             <div className="productionMetrics">
               <div><span>Piezas</span><strong>{displayedModel.parts.length}</strong></div>
               <div><span>Área de tablero</span><strong>{area.toFixed(2)} <small>m²</small></strong></div>
@@ -321,9 +319,9 @@ export function MuebleDesigner() {
               proposal={proposal}
               onProposalChange={setProposal}
               onApplyProposal={applyProposal}
-              hasGeneratedModel={Boolean(generatedModelBlob)}
-              onGeneratedModel={(blob) => { setGeneratedModelBlob(blob); setShowGeneratedModel(true); }}
-              onClearGeneratedModel={() => { setGeneratedModelBlob(null); setShowGeneratedModel(false); }}
+              photoProposal={photoProposal}
+              onPhotoProposalChange={setPhotoProposal}
+              onApplyPhotoProposal={applyPhotoProposal}
             />
           )}
         </aside>

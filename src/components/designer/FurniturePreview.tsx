@@ -108,6 +108,29 @@ export function FurniturePreview({
       );
     }
 
+    const dividerCount = model.layout.sections.length - 1;
+    const boardThickness = model.parts.find((part) => part.id === "side-left")?.thickness ?? 18;
+    const clearWidth = width - 2 * boardThickness - dividerCount * boardThickness;
+    let sectionStart = boardThickness;
+    for (const section of model.layout.sections) {
+      const sectionWidth = clearWidth * section.widthRatio;
+      if (section.hanging) {
+        const rodLength = Math.max(0.2, sectionWidth - 36) / 1000;
+        const rod = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.009, 0.009, rodLength, 12),
+          new THREE.MeshStandardMaterial({ color: "#9ba8ad", metalness: 0.55, roughness: 0.38 }),
+        );
+        rod.rotation.z = Math.PI / 2;
+        rod.position.set(
+          (sectionStart + sectionWidth / 2) / 1000 - w / 2,
+          (boardThickness + (height - 2 * boardThickness) * 0.72) / 1000 - h / 2,
+          depth * 0.7 / 1000 - d / 2,
+        );
+        wardrobe.add(rod);
+      }
+      sectionStart += sectionWidth + boardThickness;
+    }
+
     const resize = () => {
       const rect = mount.getBoundingClientRect();
       const nextWidth = Math.max(1, Math.round(rect.width));
@@ -137,7 +160,7 @@ export function FurniturePreview({
       });
       renderer.domElement.remove();
     };
-  }, [depth, height, material, model.parts, selectedPartId, width]);
+  }, [depth, height, material, model.layout, model.parts, selectedPartId, width]);
 
   const resetView = () => controlsRef.current?.reset();
 

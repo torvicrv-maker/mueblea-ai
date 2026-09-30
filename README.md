@@ -4,7 +4,7 @@ Starter técnico para una app web de diseño y fabricación de muebles de melami
 
 ## Objetivo del MVP
 
-Entrada de medidas → modelo paramétrico → vista isométrica → despiece preliminar. La IA se integra después como capa de intención y nunca como fuente de verdad geométrica.
+Foto y medidas → propuesta de distribución editable → confirmación → modelo paramétrico → despiece preliminar. La IA propone; Furniture Core calcula las piezas y la geometría.
 
 ## Stack objetivo
 
@@ -22,18 +22,20 @@ Entrada de medidas → modelo paramétrico → vista isométrica → despiece pr
 - El visor Three.js `SVGRenderer` permite girar y acercar el clóset sin depender de WebGL.
 - Guarda y carga proyectos en el almacenamiento de este navegador.
 - El módulo Diseñador IA acepta texto y dictado; prepara una acción `SET_DIMENSIONS` con vista previa y confirmación.
-- El panel acepta fotos JPG, PNG o WebP, las reduce en el navegador y permite solicitar a Meshy una referencia GLB que se puede girar y acercar en el lienzo.
+- El panel acepta fotos JPG, PNG o WebP, las reduce en el navegador y envía la imagen junto con las medidas actuales a una función de servidor de visión; la credencial queda privada.
+- La IA propone hasta cuatro módulos, repisas, espacio para colgar y frentes simples de puertas o cajones. La distribución se puede editar y descartar antes de aplicarla.
+- Al confirmar, el mismo modelo paramétrico alimenta el visor 3D, las métricas de tableros y el CSV; los proyectos guardados conservan esa distribución.
 - El botón de descarga genera un CSV del despiece actual.
 
-La generación de fotos funciona mediante una Vercel Function en `api/image-to-3d.ts`; la clave de Meshy permanece del lado del servidor. El modelo generado es solo una referencia visual: no confirma dimensiones ni se convierte en piezas o despiece. El clóset paramétrico sigue siendo la fuente de verdad para medidas y CSV. El visor no es un CAD completo y el cálculo de materiales es preliminar. Los proyectos quedan solo en el navegador actual; todavía no hay sincronización, precios ni optimización de tableros.
+Una sola foto no revela medidas, la parte trasera ni la estructura oculta: la app usa las dimensiones ingresadas y marca lo demás como suposición revisable. El despiece incluye las piezas de melamina que representa el modelo; los frentes de cajón no incluyen cajas ni herrajes, y el colgador es solo una referencia visual. El visor no es un CAD completo y los cantos son preliminares. Los proyectos quedan solo en este navegador; todavía no hay sincronización, precios ni optimización de tableros.
 
-### Activar foto a 3D
+### Activar análisis de fotos
 
-1. Despliega este repositorio como proyecto en Vercel para habilitar `/api/image-to-3d`.
-2. En las variables de entorno de Vercel configura `MESHY_API_KEY` y `MUEBLEA_IMAGE3D_ENABLED=true`. Añade los orígenes de producción a `MUEBLEA_ALLOWED_ORIGINS` separados por comas.
-3. En el build de GitHub Pages configura `NEXT_PUBLIC_MUEBLEA_API_ORIGIN` con el origen HTTPS del proyecto Vercel para que la web estática llame al servicio.
+1. Despliega este repositorio como proyecto en Vercel para habilitar `/api/design-from-photo`.
+2. En las variables privadas de Vercel configura `OPENAI_API_KEY` y `MUEBLEA_VISION_ENABLED=true`. `MUEBLEA_VISION_MODEL` es opcional y por defecto usa `gpt-5.6` con razonamiento `low`. Añade el origen de la web a `MUEBLEA_ALLOWED_ORIGINS`.
+3. En GitHub, crea la variable de Actions `NEXT_PUBLIC_MUEBLEA_API_ORIGIN` con el origen HTTPS del proyecto Vercel. El workflow la incorpora al build estático de Pages.
 
-La plantilla de variables está en `.env.example`. Nunca publiques `MESHY_API_KEY` ni la guardes en una variable `NEXT_PUBLIC_*`. La solicitud al proveedor ocurre solo al pulsar **Generar modelo 3D**.
+La plantilla está en `.env.example`. Nunca publiques `OPENAI_API_KEY` ni la guardes en una variable `NEXT_PUBLIC_*`. La imagen solo se envía al servicio de IA cuando se pulsa **Analizar y preparar diseño**; el endpoint está deshabilitado hasta configurar la clave y `MUEBLEA_VISION_ENABLED`.
 
 ## Ejecutar
 
@@ -46,13 +48,13 @@ Abrir `http://localhost:3000`.
 
 ## Estado
 
-BLOQUE 0 iniciado. Incluye arquitectura, agentes, modelo paramétrico mínimo y un diseñador de clóset demostrativo.
+El modelo paramétrico de clóset ya admite secciones, repisas, puertas sencillas y frentes de cajones. La integración de visión está lista en el código y requiere el endpoint de Vercel y su clave privada para analizar fotos.
 
 Cada cambio en `main` compila y publica automáticamente el sitio en GitHub Pages.
 
 ## Nota de validación
 
-Las dependencias están fijadas en `package-lock.json`. Validación local: `npm run check` completó typecheck, 11 pruebas del core y build de producción.
+Las dependencias están fijadas en `package-lock.json`. Ejecuta `npm run check` para validar tipos, pruebas y build estático.
 
 
 ## QA
@@ -62,4 +64,4 @@ npm test
 npm run check
 ```
 
-El core tiene una regresión canónica automatizada de 2400 × 2300 × 600 mm.
+El core tiene regresiones automatizadas de 2400 × 2300 × 600 mm, distribución por módulos, puertas, frentes de cajón, límites del mueble y propuestas de foto.

@@ -9,16 +9,19 @@ Clóset rectangular de melamina.
 ## Flujo MVP
 1. Crear proyecto.
 2. Definir ancho, alto y fondo.
-3. Generar modelo paramétrico.
-4. Revisar una vista isométrica preliminar.
-5. Obtener despiece.
-6. Calcular tableros/canto.
-7. Presupuestar.
-8. Guardar versión.
+3. Opcionalmente cargar una foto y obtener una propuesta de distribución editable.
+4. Confirmar la distribución y generar el modelo paramétrico.
+5. Revisar una vista 3D preliminar.
+6. Obtener el despiece del mismo modelo.
+7. Calcular tableros/canto.
+8. Presupuestar.
+9. Guardar versión.
 
 ## Fuera de alcance de BLOQUE 0
 - Generación libre de geometría con LLM.
 - CNC de producción.
-- Visión por foto/plano.
+- Interpretar planos técnicos y generar un despiece certificado.
 - Facturación.
 - Optimización industrial definitiva.
+
+La visión de fotos en el prototipo propone clósets de hasta cuatro módulos; una sola foto no mide dimensiones ni revela el interior oculto. La geometría procede del motor paramétrico después de confirmación.

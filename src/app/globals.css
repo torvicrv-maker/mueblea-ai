@@ -475,14 +475,7 @@ a { color: inherit; }
 .assistantRoadmapNote strong { display: block; color: #69747b; font-size: 8px; }
 .assistantRoadmapNote p { margin: 4px 0 0; color: #8a949a; font-size: 8px; line-height: 1.5; }
 .canvasToolbarControls { display: flex; align-items: center; gap: 9px; }
-.canvasModelToggle { min-height: 27px; padding: 0 8px; border: 1px solid #dce7ed; border-radius: 6px; background: #fff; color: #39799f; font-size: 8px; font-weight: 680; cursor: pointer; }
-.canvasModelToggle:hover { border-color: #9dc9e2; background: #f3faff; }
-.generatedModelNote { margin: 10px 0 0; padding: 8px 9px; border: 1px solid #e2ebf0; border-radius: 6px; background: #f7fafc; color: #697882; font-size: 9px; line-height: 1.5; }
 .generatedViewportStage { background: radial-gradient(ellipse at 50% 42%, #fff 0%, #fafbfc 58%, #edf1f4 100%); }
-.generatedModelViewport > canvas { width: 100%; height: 100%; display: block; touch-action: none; }
-.generatedModelBadge { position: absolute; z-index: 3; right: 13px; bottom: 13px; padding: 6px 8px; border: 1px solid rgba(221,229,234,.92); border-radius: 5px; background: rgba(255,255,255,.9); color: #697782; font-size: 7px; font-weight: 740; letter-spacing: .05em; pointer-events: none; }
-.generatedModelStatus { position: absolute; z-index: 3; top: 50%; left: 50%; padding: 9px 12px; transform: translate(-50%, -50%); border: 1px solid #e1e8ec; border-radius: 7px; background: rgba(255,255,255,.94); color: #596b77; font-size: 10px; box-shadow: 0 5px 20px rgba(35,48,59,.07); }
-.generatedModelStatus.error { border-color: #efd9d4; color: #a45a4d; }
 .imageTo3DCard { padding: 11px; display: grid; gap: 7px; border: 1px solid #e1e8ed; border-radius: 8px; background: linear-gradient(145deg, #fff 15%, #f8fbfd 100%); }
 .imageTo3DHeading { display: flex; align-items: center; justify-content: space-between; }
 .imageTo3DHeading > span:last-child { color: #168bd6; font-size: 18px; line-height: 1; }
@@ -501,20 +494,36 @@ a { color: inherit; }
 .imageTo3DButton { min-height: 36px; flex: 1; border: 0; border-radius: 6px; background: var(--accent); color: #fff; font-size: 9px; font-weight: 710; cursor: pointer; }
 .imageTo3DButton:hover:not(:disabled) { background: var(--accent-dark); }
 .imageTo3DButton:disabled { opacity: .46; cursor: not-allowed; }
-.imageClearButton, .removeGeneratedModelButton { min-height: 32px; padding: 0 8px; border: 1px solid #e0e5e8; border-radius: 6px; background: #fff; color: #77848d; font-size: 8px; font-weight: 640; cursor: pointer; }
-.imageClearButton:hover, .removeGeneratedModelButton:hover { border-color: #b6d7e9; color: #39799f; }
+.imageClearButton { min-height: 32px; padding: 0 8px; border: 1px solid #e0e5e8; border-radius: 6px; background: #fff; color: #77848d; font-size: 8px; font-weight: 640; cursor: pointer; }
+.imageClearButton:hover { border-color: #b6d7e9; color: #39799f; }
 .imageTo3DProgress { width: 100%; height: 5px; accent-color: var(--accent); }
 .imageTo3DStatus { min-height: 14px; margin: 0; color: #75848d; font-size: 8px; line-height: 1.45; }
 .imageTo3DStatus.error { color: #a14f45; }
 .imageTo3DDisclaimer { margin: 0; padding-top: 6px; border-top: 1px solid #edf0f2; color: #98a0a5; font-size: 7.5px; line-height: 1.5; }
-.removeGeneratedModelButton { justify-self: start; margin-top: 1px; }
+.photoPromptHint { margin: -4px 0 0; color: #8b959c; font-size: 8px; line-height: 1.45; }
+.photoProposalCard { border-color: #cde5f3; }
+.photoSectionList { display: grid; gap: 7px; margin-top: 9px; }
+.photoSectionEditor { padding: 9px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 7px 9px; border: 1px solid #e2e9ed; border-radius: 7px; background: rgba(255,255,255,.82); }
+.photoSectionHeader { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }
+.photoSectionHeader strong { color: #52616a; font-size: 9px; }
+.photoSectionHeader button { padding: 2px 5px; border: 0; background: transparent; color: #9b6860; font-size: 8px; cursor: pointer; }
+.photoSectionEditor > label { color: #75818a; font-size: 8px; }
+.photoSectionEditor > label span { justify-self: end; color: #4f7183; font-variant-numeric: tabular-nums; }
+.photoSectionEditor > input[type="range"] { grid-column: 1 / -1; width: 100%; margin: -3px 0 1px; accent-color: var(--accent); }
+.photoSectionEditor > select { width: 100%; min-height: 29px; padding: 0 7px; border: 1px solid #e0e6e9; border-radius: 5px; background: #fff; color: #47535b; font-size: 8px; }
+.photoSectionEditor > label.hangingOption { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; padding-top: 3px; color: #63727a; }
+.hangingOption input { width: 13px; height: 13px; margin: 0; accent-color: var(--accent); }
+.addPhotoSectionButton { min-height: 30px; border: 1px dashed #cddfe9; border-radius: 6px; background: #f8fbfd; color: #4e7f9a; font-size: 8px; font-weight: 650; cursor: pointer; }
+.addPhotoSectionButton:hover { border-color: #92c3df; background: #f0f8fc; }
+.photoAssumptions { margin-top: 9px; padding: 8px; border-radius: 6px; background: #fffaf0; }
+.photoAssumptions strong { display: block; color: #846a42; font-size: 8px; }
+.photoAssumptions p { margin: 5px 0 0; color: #887d6b; font-size: 8px; line-height: 1.4; }
 @media (max-width: 760px) {
   .assistantConversation { max-height: 180px; }
   .assistantComposerActions { gap: 6px; }
   .voiceButton { min-height: 38px; padding: 0 9px; }
   .canvasToolbarControls { gap: 5px; }
   .canvasViewLabel { font-size: 8px; }
-  .canvasModelToggle { min-height: 25px; padding: 0 6px; font-size: 7px; }
   .imageTo3DCard { padding: 10px; }
 }
 @media (max-width: 390px) {

@@ -7,6 +7,21 @@ export interface FurnitureDimensions {
   depth: number;
 }
 
+export type WardrobeFrontStyle = "open" | "doors" | "drawers";
+
+export interface WardrobeSection {
+  /** Participación relativa del ancho interior. Se normaliza al construir el mueble. */
+  widthRatio: number;
+  shelfCount: number;
+  hanging: boolean;
+  frontStyle: WardrobeFrontStyle;
+  drawerCount: number;
+}
+
+export interface WardrobeLayout {
+  sections: WardrobeSection[];
+}
+
 export interface PartTransform {
   x: number;
   y: number;
@@ -41,5 +56,6 @@ export interface FurnitureModel {
   version: number;
   dimensions: FurnitureDimensions;
   materialId: string;
+  layout: WardrobeLayout;
   parts: FurniturePart[];
 }
