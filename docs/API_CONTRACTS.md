@@ -26,7 +26,7 @@ No existe endpoint `ai_write_database`.
 
 ## Foto a propuesta de clóset
 
-`POST /api/design-from-photo` recibe una foto JPEG compactada en un data URI, dimensiones actuales en milímetros y una instrucción opcional. El servidor llama a OpenAI Responses con un esquema JSON limitado a una distribución de clóset.
+`POST /api/design-from-photo` recibe una foto JPEG compactada en un data URI, dimensiones actuales en milímetros y una instrucción opcional. El servidor llama a Gemini Developer API con un esquema JSON limitado a una distribución de clóset.
 
 ```ts
 interface PhotoDesignProposal {

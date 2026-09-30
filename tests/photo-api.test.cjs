@@ -16,9 +16,9 @@ const proposal = {
 
 function configureService(enabled = true) {
   process.env.MUEBLEA_ALLOWED_ORIGINS = allowedOrigin;
-  process.env.OPENAI_API_KEY = 'test-only-key';
+  process.env.GEMINI_API_KEY = 'test-only-key';
   process.env.MUEBLEA_VISION_ENABLED = enabled ? 'true' : 'false';
-  process.env.MUEBLEA_VISION_MODEL = 'gpt-5.6';
+  process.env.MUEBLEA_VISION_MODEL = 'gemini-3.8-flash';
 }
 
 function photoRequest({ origin = allowedOrigin, dimensions = { width: 2400, height: 2300, depth: 600 } } = {}) {
@@ -27,13 +27,13 @@ function photoRequest({ origin = allowedOrigin, dimensions = { width: 2400, heig
     headers: {
       Origin: origin,
       'Content-Type': 'application/json',
-      'x-forwarded-for': `192.0.2.${Math.floor(Math.random() * 200) + 1}`,
+      'x-forwarded-for': '192.0.2.' + (Math.floor(Math.random() * 200) + 1),
     },
     body: JSON.stringify({ imageDataUri: 'data:image/jpeg;base64,Zm9v', dimensions, description: 'dos módulos' }),
   });
 }
 
-test('photo analysis stays disabled unless both server flags and provider key are set', async () => {
+test('photo analysis stays disabled unless server flag and Gemini key are set', async () => {
   configureService(false);
   const response = await endpoint.fetch(photoRequest());
 
@@ -42,7 +42,16 @@ test('photo analysis stays disabled unless both server flags and provider key ar
   assert.match((await response.json()).error, /aún no está configurado/);
 });
 
-test('photo endpoint rejects unknown origins before calling the AI provider', async () => {
+test('photo endpoint stays disabled if the Gemini key is missing', async () => {
+  configureService(true);
+  delete process.env.GEMINI_API_KEY;
+  const response = await endpoint.fetch(photoRequest());
+
+  assert.equal(response.status, 503);
+  assert.match((await response.json()).error, /aún no está configurado/);
+});
+
+test('photo endpoint rejects unknown origins before calling Gemini', async () => {
   configureService(true);
   const previousFetch = global.fetch;
   let providerCalls = 0;
@@ -56,15 +65,17 @@ test('photo endpoint rejects unknown origins before calling the AI provider', as
   }
 });
 
-test('photo endpoint sends the uploaded image and dimensions to structured vision and returns a validated proposal', async () => {
+test('photo endpoint sends photo and dimensions to Gemini structured vision and returns a validated proposal', async () => {
   configureService(true);
   const previousFetch = global.fetch;
   let providerPayload;
+  let providerKey;
   global.fetch = async (url, init) => {
-    assert.equal(url, 'https://api.openai.com/v1/responses');
+    assert.equal(url, 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent');
+    providerKey = init.headers['x-goog-api-key'];
     providerPayload = JSON.parse(init.body);
     return new Response(JSON.stringify({
-      output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(proposal) }] }],
+      candidates: [{ content: { parts: [{ text: JSON.stringify(proposal) }] } }],
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
 
@@ -78,11 +89,27 @@ test('photo endpoint sends the uploaded image and dimensions to structured visio
       layout: { sections: proposal.sections },
       assumptions: proposal.assumptions,
     });
-    assert.equal(providerPayload.model, 'gpt-5.6');
-    assert.equal(providerPayload.store, false);
-    assert.equal(providerPayload.input[1].content[1].image_url, 'data:image/jpeg;base64,Zm9v');
-    assert.match(providerPayload.input[1].content[0].text, /2400/);
-    assert.equal(providerPayload.text.format.type, 'json_schema');
+    assert.equal(providerKey, 'test-only-key');
+    assert.equal(providerPayload.system_instruction.parts[0].text.includes('clósets'), true);
+    assert.equal(providerPayload.contents[0].parts[1].inline_data.data, 'Zm9v');
+    assert.equal(providerPayload.contents[0].parts[1].inline_data.mime_type, 'image/jpeg');
+    assert.match(providerPayload.contents[0].parts[0].text, /2400/);
+    assert.equal(providerPayload.generation_config.response_mime_type, 'application/json');
+    assert.equal(providerPayload.generation_config.response_schema.type, 'OBJECT');
+    assert.equal(providerPayload.store, undefined);
+  } finally {
+    global.fetch = previousFetch;
+  }
+});
+
+test('photo endpoint explains Gemini free quota when provider limits requests', async () => {
+  configureService(true);
+  const previousFetch = global.fetch;
+  global.fetch = async () => new Response(JSON.stringify({ error: { status: 'RESOURCE_EXHAUSTED' } }), { status: 429 });
+  try {
+    const response = await endpoint.fetch(photoRequest());
+    assert.equal(response.status, 429);
+    assert.match((await response.json()).error, /cuota o límite gratuito de Gemini/i);
   } finally {
     global.fetch = previousFetch;
   }
@@ -92,12 +119,12 @@ test('photo endpoint rejects a layout that cannot fit the entered width', async 
   configureService(true);
   const previousFetch = global.fetch;
   global.fetch = async () => new Response(JSON.stringify({
-    output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify({
+    candidates: [{ content: { parts: [{ text: JSON.stringify({
       supported: true,
       summary: 'Clóset dividido en cuatro módulos.',
       sections: Array.from({ length: 4 }, () => ({ widthRatio: 0.25, shelfCount: 1, hanging: false, frontStyle: 'open', drawerCount: 0 })),
       assumptions: [],
-    }) }] }],
+    }) }] } }],
   }), { status: 200 });
   try {
     const response = await endpoint.fetch(photoRequest({ dimensions: { width: 400, height: 2300, depth: 600 } }));

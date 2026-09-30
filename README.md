@@ -32,10 +32,10 @@ Una sola foto no revela medidas, la parte trasera ni la estructura oculta: la ap
 ### Activar análisis de fotos
 
 1. Despliega este repositorio como proyecto en Vercel para habilitar `/api/design-from-photo`.
-2. En las variables privadas de Vercel configura `OPENAI_API_KEY` y `MUEBLEA_VISION_ENABLED=true`. `MUEBLEA_VISION_MODEL` es opcional y por defecto usa `gpt-5.6` con razonamiento `low`. Añade el origen de la web a `MUEBLEA_ALLOWED_ORIGINS`.
+2. En las variables privadas de Vercel configura `GEMINI_API_KEY` y `MUEBLEA_VISION_ENABLED=true`. `MUEBLEA_VISION_MODEL` es opcional y por defecto usa `gemini-3.8-flash`. Añade el origen de la web a `MUEBLEA_ALLOWED_ORIGINS`.
 3. En GitHub, crea la variable de Actions `NEXT_PUBLIC_MUEBLEA_API_ORIGIN` con el origen HTTPS del proyecto Vercel. El workflow la incorpora al build estático de Pages.
 
-La plantilla está en `.env.example`. Nunca publiques `OPENAI_API_KEY` ni la guardes en una variable `NEXT_PUBLIC_*`. La imagen solo se envía al servicio de IA cuando se pulsa **Analizar y preparar diseño**; el endpoint está deshabilitado hasta configurar la clave y `MUEBLEA_VISION_ENABLED`.
+La plantilla está en `.env.example`. Crea la clave de Gemini Developer API en [Google AI Studio](https://aistudio.google.com/app/apikey) y guárdala solo como `GEMINI_API_KEY` privada en Vercel; nunca la publiques ni la guardes en una variable `NEXT_PUBLIC_*`. En el nivel gratuito, Google puede usar el contenido enviado para mejorar sus productos, y las cuotas son limitadas. No cargues fotos privadas o con datos personales. La imagen solo se envía cuando se pulsa **Analizar y preparar diseño**; el endpoint permanece apagado hasta configurar la clave y `MUEBLEA_VISION_ENABLED`.
 
 ## Ejecutar
 

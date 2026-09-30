@@ -34,5 +34,5 @@
 - [x] Acción tipada `SET_DIMENSIONS` con preview/confirmación.
 - [x] Dictado de voz como borrador editable.
 - [x] Endpoint de visión para proponer distribución desde foto, con preview/confirmación.
-- [ ] Activar servicio de visión en Vercel con credencial privada.
+- [ ] Activar servicio de visión Gemini en Vercel con `GEMINI_API_KEY` privada; probar el análisis con una foto no sensible.
 - [ ] Interpretar planos técnicos.

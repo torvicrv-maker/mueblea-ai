@@ -428,9 +428,9 @@ export function DesignerAIPanel({
         <p className={photoStatus && /no pudo|no se pudo|tardando|todavía no está conectado|demasiado|inválida|no cabe|no puedo|no coincide|no está configurado/i.test(photoStatus) ? "imageTo3DStatus error" : "imageTo3DStatus"} role="status" aria-live="polite">
           {photoStatus || (!photoServiceReady
             ? "La conexión con el servidor seguro aún está pendiente. Puedes cargar la foto; el análisis se habilitará al conectarlo."
-            : "Al analizar, se envían la foto, las medidas y tu instrucción al servicio de IA configurado por la app.")}
+            : "Al analizar, se envían la foto, las medidas y tu instrucción a Gemini para preparar la propuesta.")}
         </p>
-        <p className="imageTo3DDisclaimer">La foto no revela medidas ni partes ocultas. Revisa el borrador: solo se aplica cuando confirmas. Cada análisis consume uso de API de la cuenta configurada en el servidor.</p>
+        <p className="imageTo3DDisclaimer">En el nivel gratuito, Google puede usar los datos enviados para mejorar sus productos. No cargues fotos privadas ni con personas o datos personales. La foto no revela medidas ni partes ocultas; revisa el borrador y confirma antes de aplicarlo.</p>
       </section>
 
       {photoProposal && photoLayout ? (
