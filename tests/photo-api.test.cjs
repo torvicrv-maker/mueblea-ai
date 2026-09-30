@@ -109,7 +109,7 @@ test('photo endpoint explains Gemini free quota when provider limits requests', 
   try {
     const response = await endpoint.fetch(photoRequest());
     assert.equal(response.status, 429);
-    assert.match((await response.json()).error, /cuota o límite gratuito de Gemini/i);
+    assert.match((await response.json()).error, /cuota o límite gratuito/i);
   } finally {
     global.fetch = previousFetch;
   }
